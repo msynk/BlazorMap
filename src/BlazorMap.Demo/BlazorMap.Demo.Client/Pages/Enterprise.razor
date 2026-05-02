@@ -1,0 +1,161 @@
+@page "/enterprise"
+@rendermode InteractiveWebAssembly
+
+<PageTitle>BlazorMap — Enterprise-style features</PageTitle>
+
+<h1>What commercial suites emphasize</h1>
+
+<section class="demo-panel">
+    <p>
+        <strong>Telerik</strong> maps stress layered content (tile, marker, shape, bubble), per-layer opacity,
+        min/max zoom, z-order, and tooltips. <strong>Syncfusion</strong> adds zoom modes (wheel, pinch, double-click),
+        pan, selection, highlight, marker clustering, and tooltips. <strong>DevExpress</strong> focuses on provider keys,
+        markers with tooltips, driving/walking routes, and auto-fit to markers. Below is a subset implemented here without vendor lock-in.
+    </p>
+    <ul>
+        <li>Interaction toggles (wheel, double-click, box zoom, drag, keyboard)</li>
+        <li>Scale bar and optional max bounds (pan limit)</li>
+        <li>Marker tooltips vs popups, z-order, <code>FitBoundsToMarkersAsync</code> (auto-adjust)</li>
+        <li>Read viewport via <code>GetViewAsync</code>; double-click event</li>
+        <li>Optional XYZ tile overlay (e.g. labels)</li>
+    </ul>
+</section>
+
+<section class="demo-panel">
+    <h2>Live sample</h2>
+    <p>
+        <label><input type="checkbox" @bind="_wheel" @bind:after="PushOptions" /> Scroll wheel zoom</label>
+        &nbsp;
+        <label><input type="checkbox" @bind="_drag" @bind:after="PushOptions" /> Dragging</label>
+        &nbsp;
+        <label><input type="checkbox" @bind="_scale" @bind:after="PushOptions" /> Scale control</label>
+        &nbsp;
+        <label><input type="checkbox" @bind="_maxBounds" @bind:after="PushOptions" /> Limit pan to Greater London</label>
+        &nbsp;
+        <label><input type="checkbox" @bind="_overlay" @bind:after="ToggleOverlayAsync" /> Stamen toner labels overlay</label>
+    </p>
+    <div class="demo-map-wrap">
+        <BlazorMap @ref="_map"
+                   Height="380px"
+                   Options="@BuildOptions()"
+                   OnMapDoubleClick="HandleDbl"
+                   OnViewChanged="HandleView" />
+    </div>
+    <div class="demo-actions">
+        <button type="button" @onclick="AddClusterLikePinsAsync">Add three pins + fit bounds</button>
+        <button type="button" @onclick="ReadViewAsync">Log viewport (GetViewAsync)</button>
+    </div>
+    <div class="demo-log">@_log</div>
+</section>
+
+@code {
+    private BlazorMap? _map;
+    private string _log = "Toggle options or use the buttons.";
+    private bool _wheel = true;
+    private bool _drag = true;
+    private bool _scale = true;
+    private bool _maxBounds;
+    private bool _overlay;
+
+    private void PushOptions() => StateHasChanged();
+
+    private MapDisplayOptions BuildOptions() =>
+        new()
+        {
+            Center = new LatLng(51.5074, -0.1278),
+            Zoom = 11,
+            ShowScaleControl = _scale,
+            ScrollWheelZoom = _wheel,
+            Dragging = _drag,
+            MaxBounds = _maxBounds
+                ? new LatLngBounds(new LatLng(51.25, -0.55), new LatLng(51.75, 0.35))
+                : null,
+        };
+
+    private async Task ToggleOverlayAsync()
+    {
+        if (_map is null) return;
+        if (_overlay)
+        {
+            try
+            {
+                await _map.AddTileOverlayAsync(
+                    new TileOverlayOptions
+                    {
+                        Id = "labels",
+                        UrlTemplate = "https://stamen-tiles.a.ssl.fastly.net/toner-labels/{z}/{x}/{y}.png",
+                        Attribution =
+                            @"Map tiles by Stamen Design, under CC BY 3.0. Data by OpenStreetMap.",
+                        Opacity = 0.85,
+                        ZIndex = 400,
+                        MaxZoom = 20,
+                    });
+                _log = "Overlay added (may fail if the tile host blocks your origin).";
+            }
+            catch (Exception ex)
+            {
+                _log = "Overlay failed: " + ex.Message;
+                _overlay = false;
+            }
+        }
+        else
+        {
+            await _map.RemoveTileOverlayAsync("labels");
+            _log = "Overlay removed.";
+        }
+
+        StateHasChanged();
+    }
+
+    private Task HandleDbl(LatLng p)
+    {
+        _log = $"Double-click at {p.Lat:F4}, {p.Lng:F4} (Leaflet still zooms unless you disable DoubleClickZoom).";
+        return Task.CompletedTask;
+    }
+
+    private Task HandleView(MapViewState _) => Task.CompletedTask;
+
+    private async Task AddClusterLikePinsAsync()
+    {
+        if (_map is null) return;
+        await _map.ClearMarkersAsync();
+        await _map.AddMarkerAsync(
+            new MapMarkerModel
+            {
+                Id = "a",
+                Position = new LatLng(51.52, -0.10),
+                TooltipHtml = "<b>West End</b> (tooltip)",
+                PopupHtml = "Popup A",
+                ZIndexOffset = 10,
+            });
+        await _map.AddMarkerAsync(
+            new MapMarkerModel
+            {
+                Id = "b",
+                Position = new LatLng(51.50, -0.08),
+                TooltipHtml = "City (tooltip)",
+                PopupHtml = "Popup B",
+            });
+        await _map.AddMarkerAsync(
+            new MapMarkerModel
+            {
+                Id = "c",
+                Position = new LatLng(51.48, -0.06),
+                TooltipHtml = "South bank (tooltip)",
+                PopupHtml = "Popup C",
+            });
+        await _map.FitBoundsToMarkersAsync(56);
+        _log = "Three markers; view fitted with FitBoundsToMarkersAsync.";
+        StateHasChanged();
+    }
+
+    private async Task ReadViewAsync()
+    {
+        if (_map is null) return;
+        var v = await _map.GetViewAsync();
+        _log =
+            $"GetViewAsync → zoom {v.Zoom:F2}, center {v.Center.Lat:F4},{v.Center.Lng:F4}, " +
+            $"bounds NE {v.Bounds.NorthEast.Lat:F4},{v.Bounds.NorthEast.Lng:F4}";
+        StateHasChanged();
+    }
+}

@@ -1,0 +1,81 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Ubuntu, sans-serif;
+  line-height: 1.5;
+}
+
+h1,
+h2,
+h3 {
+  line-height: 1.25;
+  margin-top: 0;
+}
+
+a {
+  color: #58a6ff;
+}
+
+.demo-panel {
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.demo-panel p:last-child {
+  margin-bottom: 0;
+}
+
+.demo-map-wrap {
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid #30363d;
+  margin: 1rem 0;
+}
+
+.demo-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.demo-actions button {
+  cursor: pointer;
+  border: 1px solid #30363d;
+  background: #21262d;
+  color: #e6edf3;
+  padding: 0.35rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.demo-actions button:hover {
+  background: #30363d;
+}
+
+.demo-tile-btn.is-active {
+  border-color: #58a6ff;
+  color: #58a6ff;
+}
+
+.demo-log {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.8rem;
+  background: #0d1117;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  padding: 0.75rem;
+  max-height: 160px;
+  overflow: auto;
+  white-space: pre-wrap;
+  margin-top: 0.75rem;
+}

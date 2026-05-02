@@ -1,0 +1,16 @@
+.blazor-map-root {
+  position: relative;
+  min-height: 120px;
+}
+
+.blazor-map-canvas {
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+/* Leaflet default tiles can extend past rounded corners */
+.blazor-map-root .leaflet-container {
+  font: inherit;
+  border-radius: inherit;
+}

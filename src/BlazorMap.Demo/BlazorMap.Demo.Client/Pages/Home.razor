@@ -1,0 +1,63 @@
+﻿@page "/"
+@rendermode InteractiveWebAssembly
+
+<PageTitle>BlazorMap — Overview</PageTitle>
+
+<h1>BlazorMap</h1>
+
+<section class="demo-panel">
+    <p>
+        This solution ships a reusable <strong>BlazorMap</strong> Razor Class Library that wraps
+        <a href="https://leafletjs.com/" target="_blank" rel="noopener noreferrer">Leaflet</a>
+        with a typed .NET API: markers, vector shapes, GeoJSON, custom tiles, and map events.
+        The host app must load Leaflet CSS and JS (see <code>App.razor</code> in the server project).
+        Geographic DTOs live in the <code>BlazorMapKit</code> namespace so they do not clash with the
+        <code>BlazorMap</code> component type name.
+    </p>
+    <p>
+        Use the navigation above for focused samples. Everything on these pages runs with
+        <code>@@rendermode InteractiveWebAssembly</code> so interop executes in the browser.
+    </p>
+</section>
+
+<section class="demo-panel">
+    <h2>Quick map</h2>
+    <p>London, default OpenStreetMap tiles.</p>
+    <div class="demo-map-wrap">
+        <BlazorMap Height="280px" Options="@_opts" />
+    </div>
+</section>
+
+<section class="demo-panel">
+    <h2>Compared to other Blazor map libraries</h2>
+    <ul>
+        <li>
+            <strong>OpenLayers.Blazor</strong> — mature OpenLayers wrapper; OSM, Bing, Mapbox, SwissTopo,
+            vector layers, GeoJSON, drawing, heatmaps. Strong choice when you need OGC services and projections.
+        </li>
+        <li>
+            <strong>BlazorLeaflet</strong> — community Leaflet wrapper; simpler surface, historically alpha-style releases.
+        </li>
+        <li>
+            <strong>BlazorBasics.Maps</strong> — unified API with Google or Leaflet backends for markers, routes, and clicks.
+        </li>
+        <li>
+            <strong>Telerik / Syncfusion / DevExpress</strong> — paid suites: layered tiles and vectors, rich zoom and
+            pan modes, tooltips, marker clustering (Syncfusion), selection/highlight, scale and navigation UI, and
+            (where providers allow) routing plus auto-fit to markers. See the <NavLink href="/enterprise">Enterprise</NavLink>
+            demo for how this library mirrors a pragmatic subset without a subscription.
+        </li>
+    </ul>
+    <p>
+        <strong>BlazorMap</strong> (this repo) keeps scope tight: Leaflet + ES module interop, no vendor keys for the
+        default OSM stack, and a C# API you can extend. Routing like DevExpress requires your own geocoder/OSRM call; clustering can be added later via a Leaflet plugin.
+    </p>
+</section>
+
+@code {
+    private readonly MapDisplayOptions _opts = new()
+    {
+        Center = new LatLng(51.5074, -0.1278),
+        Zoom = 12,
+    };
+}
