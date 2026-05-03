@@ -1,3 +1,4 @@
+/* Elements declared in MainLayout.razor get the layout scope attribute as usual. */
 .demo-shell {
   min-height: 100vh;
   display: flex;
@@ -16,22 +17,6 @@
   background: #161b22;
 }
 
-.demo-brand {
-  font-weight: 700;
-  font-size: 1.05rem;
-  color: #58a6ff;
-  text-decoration: none;
-}
-
-.demo-brand:hover {
-  text-decoration: underline;
-}
-
-.demo-brand.is-active {
-  color: #79c0ff;
-  text-decoration: none;
-}
-
 .demo-nav {
   display: flex;
   flex-wrap: wrap;
@@ -39,7 +24,24 @@
   align-items: center;
 }
 
-.demo-nav-link {
+/* NavLink renders a child <a>; isolated CSS must pierce with ::deep */
+.demo-header ::deep .demo-brand {
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: #58a6ff;
+  text-decoration: none;
+}
+
+.demo-header ::deep .demo-brand:hover {
+  text-decoration: underline;
+}
+
+.demo-header ::deep .demo-brand.is-active {
+  color: #79c0ff;
+  text-decoration: none;
+}
+
+.demo-nav ::deep .demo-nav-link {
   color: #8b949e;
   text-decoration: none;
   font-size: 0.95rem;
@@ -49,12 +51,12 @@
   transition: color 0.12s ease, background 0.12s ease, border-color 0.12s ease;
 }
 
-.demo-nav-link:hover {
+.demo-nav ::deep .demo-nav-link:hover {
   color: #c9d1d9;
   background: rgba(240, 246, 252, 0.06);
 }
 
-.demo-nav-link.is-active {
+.demo-nav ::deep .demo-nav-link.is-active {
   color: #f0f6fc;
   font-weight: 600;
   background: #21262d;
@@ -68,4 +70,67 @@
   max-width: 1100px;
   width: 100%;
   margin: 0 auto;
+}
+
+/*
+ * Routed pages render inside @Body; those nodes do not carry this layout's scope
+ * attribute. BlazorMap and other child components likewise render out-of-scope markup.
+ * Use ::deep so demo chrome applies to all sample pages consistently.
+ */
+.demo-main ::deep .demo-panel {
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.demo-main ::deep .demo-panel p:last-child {
+  margin-bottom: 0;
+}
+
+.demo-main ::deep .demo-map-wrap {
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid #30363d;
+  margin: 1rem 0;
+}
+
+.demo-main ::deep .demo-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.demo-main ::deep .demo-actions button {
+  cursor: pointer;
+  border: 1px solid #30363d;
+  background: #21262d;
+  color: #e6edf3;
+  padding: 0.35rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.demo-main ::deep .demo-actions button:hover {
+  background: #30363d;
+}
+
+.demo-main ::deep .demo-tile-btn.is-active {
+  border-color: #58a6ff;
+  color: #58a6ff;
+}
+
+.demo-main ::deep .demo-log {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.8rem;
+  background: #0d1117;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  padding: 0.75rem;
+  max-height: 160px;
+  overflow: auto;
+  white-space: pre-wrap;
+  margin-top: 0.75rem;
 }
