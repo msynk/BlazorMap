@@ -1,5 +1,4 @@
-﻿@page "/"
-@rendermode InteractiveWebAssembly
+@page "/"
 
 <PageTitle>BlazorMap — Overview</PageTitle>
 
@@ -10,13 +9,13 @@
         This solution ships a reusable <strong>BlazorMap</strong> Razor Class Library that wraps
         <a href="https://leafletjs.com/" target="_blank" rel="noopener noreferrer">Leaflet</a>
         with a typed .NET API: markers, vector shapes, GeoJSON, custom tiles, and map events.
-        The host app must load Leaflet CSS and JS (see <code>App.razor</code> in the server project).
+        The host app must load Leaflet CSS and JS (see <code>wwwroot/index.html</code>).
         Geographic DTOs live in the <code>BlazorMapKit</code> namespace so they do not clash with the
         <code>BlazorMap</code> component type name.
     </p>
     <p>
-        Use the navigation above for focused samples. Everything on these pages runs with
-        <code>@@rendermode InteractiveWebAssembly</code> so interop executes in the browser.
+        Use the navigation above for focused samples. This demo is a standalone Blazor WebAssembly app,
+        so map interop runs entirely in the browser.
     </p>
 </section>
 

@@ -1,0 +1,18 @@
+@inherits LayoutComponentBase
+
+<div class="demo-shell">
+    <header class="demo-header">
+        <NavLink href="/" Match="NavLinkMatch.All" class="demo-brand" ActiveClass="is-active">BlazorMap demo</NavLink>
+        <nav class="demo-nav">
+            <NavLink class="demo-nav-link" href="/markers" ActiveClass="is-active">Markers</NavLink>
+            <NavLink class="demo-nav-link" href="/vectors" ActiveClass="is-active">Vectors</NavLink>
+            <NavLink class="demo-nav-link" href="/geojson" ActiveClass="is-active">GeoJSON</NavLink>
+            <NavLink class="demo-nav-link" href="/tiles" ActiveClass="is-active">Tiles</NavLink>
+            <NavLink class="demo-nav-link" href="/events" ActiveClass="is-active">Events</NavLink>
+            <NavLink class="demo-nav-link" href="/enterprise" ActiveClass="is-active">Enterprise</NavLink>
+        </nav>
+    </header>
+    <main class="demo-main">
+        @Body
+    </main>
+</div>

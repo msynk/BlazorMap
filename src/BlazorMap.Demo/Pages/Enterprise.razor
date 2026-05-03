@@ -1,5 +1,4 @@
 @page "/enterprise"
-@rendermode InteractiveWebAssembly
 
 <PageTitle>BlazorMap — Enterprise-style features</PageTitle>
 
@@ -24,13 +23,13 @@
 <section class="demo-panel">
     <h2>Live sample</h2>
     <p>
-        <label><input type="checkbox" @bind="_wheel" @bind:after="PushOptions" /> Scroll wheel zoom</label>
+        <label><input type="checkbox" @bind="_wheel" /> Scroll wheel zoom</label>
         &nbsp;
-        <label><input type="checkbox" @bind="_drag" @bind:after="PushOptions" /> Dragging</label>
+        <label><input type="checkbox" @bind="_drag" /> Dragging</label>
         &nbsp;
-        <label><input type="checkbox" @bind="_scale" @bind:after="PushOptions" /> Scale control</label>
+        <label><input type="checkbox" @bind="_scale" /> Scale control</label>
         &nbsp;
-        <label><input type="checkbox" @bind="_maxBounds" @bind:after="PushOptions" /> Limit pan to Greater London</label>
+        <label><input type="checkbox" @bind="_maxBounds" /> Limit pan to Greater London</label>
         &nbsp;
         <label><input type="checkbox" @bind="_overlay" @bind:after="ToggleOverlayAsync" /> Stamen toner labels overlay</label>
     </p>
@@ -56,8 +55,6 @@
     private bool _scale = true;
     private bool _maxBounds;
     private bool _overlay;
-
-    private void PushOptions() => StateHasChanged();
 
     private MapDisplayOptions BuildOptions() =>
         new()

@@ -1,7 +1,6 @@
 <Solution>
   <Folder Name="/BlazorMap.Demo/">
-    <Project Path="BlazorMap.Demo/BlazorMap.Demo.Client/BlazorMap.Demo.Client.csproj" />
-    <Project Path="BlazorMap.Demo/BlazorMap.Demo/BlazorMap.Demo.csproj" />
+    <Project Path="BlazorMap.Demo/BlazorMap.Demo.csproj" />
   </Folder>
   <Project Path="BlazorMap/BlazorMap.csproj" />
 </Solution>

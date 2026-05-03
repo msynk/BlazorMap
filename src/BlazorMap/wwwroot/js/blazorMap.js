@@ -198,16 +198,20 @@ export function initMap(mapId, element, dotNetRef, options) {
     });
   });
 
+  // Defer .NET callbacks so we never invoke during an outbound JS interop from WASM (e.g. setView in
+  // syncMapOptions fires moveend synchronously — immediate invokeMethodAsync deadlocks the UI thread).
   const notifyView = () => {
-    const c = map.getCenter();
-    const b = map.getBounds();
-    dotNetRef.invokeMethodAsync("ReportViewChanged", {
-      center: { lat: c.lat, lng: c.lng },
-      zoom: map.getZoom(),
-      bounds: {
-        southWest: { lat: b.getSouthWest().lat, lng: b.getSouthWest().lng },
-        northEast: { lat: b.getNorthEast().lat, lng: b.getNorthEast().lng },
-      },
+    queueMicrotask(() => {
+      const c = map.getCenter();
+      const b = map.getBounds();
+      dotNetRef.invokeMethodAsync("ReportViewChanged", {
+        center: { lat: c.lat, lng: c.lng },
+        zoom: map.getZoom(),
+        bounds: {
+          southWest: { lat: b.getSouthWest().lat, lng: b.getSouthWest().lng },
+          northEast: { lat: b.getNorthEast().lat, lng: b.getNorthEast().lng },
+        },
+      });
     });
   };
 
