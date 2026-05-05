@@ -8,7 +8,7 @@
     <p>
         <code>OnMapClick</code> receives the geographic point under the cursor.
         <code>OnViewChanged</code> fires after pan or zoom with center, zoom level, and axis-aligned bounds.
-        Use <code>InvalidateSizeAsync</code> after the container changes size so Leaflet recomputes layout.
+        Use <code>InvalidateSizeAsync</code> after the container changes size so the map recomputes layout.
     </p>
     <p>
         <label style="display: inline-flex; align-items: center; gap: 0.5rem;">
@@ -17,7 +17,7 @@
         </label>
     </p>
     <div class="demo-map-wrap">
-        <BlazorMap @ref="_map"
+        <BlazorLeafletMap @ref="_map"
                    Height="@MapHeight"
                    Options="@_opts"
                    OnMapClick="HandleMapClick"
@@ -31,7 +31,7 @@
 </section>
 
 @code {
-    private BlazorMap? _map;
+    private BlazorLeafletMap? _map;
     private bool _tall;
     private string _log = "Pan/zoom or click the map.";
 

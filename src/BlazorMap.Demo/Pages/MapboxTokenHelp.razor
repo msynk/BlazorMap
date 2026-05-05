@@ -1,0 +1,30 @@
+@page "/mapbox/token-help"
+
+<PageTitle>BlazorMap — Mapbox access token</PageTitle>
+
+<section class="demo-panel">
+    <h1>Getting a Mapbox access token</h1>
+    <p>
+        Mapbox GL needs an <strong>access token</strong> (not strictly an “API key”, but the same idea: a secret string from your Mapbox account).
+    </p>
+    <ol class="demo-steps">
+        <li>Create a free account at <a href="https://account.mapbox.com/" target="_blank" rel="noopener noreferrer">mapbox.com</a> if you don’t have one.</li>
+        <li>Open the <a href="https://account.mapbox.com/access-tokens/" target="_blank" rel="noopener noreferrer">Access tokens</a> page in your Mapbox account.</li>
+        <li>Copy your <strong>Default public token</strong>, or create a new token with the scopes you need for maps.</li>
+        <li>In this demo project, paste the token into <code>wwwroot/appsettings.json</code>:
+            <pre class="demo-inline-pre"><code>{
+  "Mapbox": {
+    "AccessToken": "YOUR_TOKEN_HERE"
+  }
+}</code></pre>
+        </li>
+        <li>Restart or reload the app and open the <NavLink href="/mapbox">Mapbox demo</NavLink> again.</li>
+    </ol>
+    <p>
+        Official reference:
+        <a href="https://docs.mapbox.com/help/getting-started/access-tokens/" target="_blank" rel="noopener noreferrer">Mapbox — Access tokens</a>.
+    </p>
+    <p>
+        <NavLink href="/mapbox">← Back to Mapbox demo</NavLink>
+    </p>
+</section>

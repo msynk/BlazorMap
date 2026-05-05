@@ -16,7 +16,7 @@
         <button type="button" class="demo-tile-btn @Active("opentopo")" @onclick='() => SetProvider("opentopo")'>OpenTopoMap</button>
     </div>
     <div class="demo-map-wrap">
-        <BlazorMap @key="_provider" Height="380px" Options="@_options" />
+        <BlazorLeafletMap @key="_provider" Height="380px" Options="@_options" />
     </div>
     <p style="font-size: 0.9rem; color: #8b949e;">
         Carto: © OpenStreetMap contributors, © CARTO.

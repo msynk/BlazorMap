@@ -1,0 +1,11 @@
+@namespace BlazorMap.Components
+@inherits BlazorInteractiveMapBase<MapLibreMapDisplayOptions>
+
+<div class="blazor-map-root blazor-maplibre-root @CssClass" style="width:@Width;height:@Height">
+    <div @ref="_mapElement"
+         class="blazor-map-canvas"
+         tabindex="0"
+         role="application"
+         aria-label="Interactive map (MapLibre). Use arrow keys to pan when focused; +/- to zoom."></div>
+    @ChildContent
+</div>

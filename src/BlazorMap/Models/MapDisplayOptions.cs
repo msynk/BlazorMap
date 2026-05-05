@@ -1,6 +1,6 @@
 namespace BlazorMapKit;
 
-/// <summary>Initial display and tile settings for <see cref="T:BlazorMap.Components.BlazorMap"/>.</summary>
+/// <summary>Initial display and tile settings for <see cref="T:BlazorMap.Components.BlazorLeafletMap"/>.</summary>
 public sealed class MapDisplayOptions
 {
     public LatLng Center { get; set; } = new(51.505, -0.09);

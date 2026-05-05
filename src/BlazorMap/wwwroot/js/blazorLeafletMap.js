@@ -1,7 +1,25 @@
 /**
- * BlazorMap — Leaflet bridge. Requires window.L (Leaflet) loaded before first init.
+ * BlazorLeafletMap — Leaflet bridge. Loads Leaflet from CDN on first init.
  */
+import { loadScript, loadStylesheet } from "./mapDependencyLoader.js";
+
 const maps = new Map();
+
+let leafletReadyPromise = null;
+
+async function ensureLeaflet() {
+  if (globalThis.L) return;
+  if (!leafletReadyPromise) {
+    leafletReadyPromise = (async () => {
+      await loadStylesheet("https://unpkg.com/leaflet@1.9.4/dist/leaflet.css");
+      await loadScript("https://unpkg.com/leaflet@1.9.4/dist/leaflet.js");
+    })();
+  }
+  await leafletReadyPromise;
+  if (!globalThis.L) {
+    throw new Error("Leaflet failed to load from CDN.");
+  }
+}
 
 /** Leaflet's default marker images break when the script is on a CDN and the app is on another origin. */
 let leafletDefaultIconPatched = false;
@@ -26,9 +44,7 @@ function ensureLeafletDefaultIcon(L) {
 function getL() {
   const L = globalThis.L;
   if (!L) {
-    throw new Error(
-      "Leaflet is not loaded. Add leaflet.css and leaflet.js to your host page before Blazor starts."
-    );
+    throw new Error("Leaflet is not available. initMap must complete first.");
   }
   return L;
 }
@@ -36,7 +52,7 @@ function getL() {
 function getState(mapId) {
   const s = maps.get(mapId);
   if (!s) {
-    throw new Error(`BlazorMap: unknown map id '${mapId}'`);
+    throw new Error(`BlazorLeafletMap: unknown map id '${mapId}'`);
   }
   return s;
 }
@@ -145,7 +161,8 @@ function tileOptsFrom(o) {
   };
 }
 
-export function initMap(mapId, element, dotNetRef, options) {
+export async function initMap(mapId, element, dotNetRef, options) {
+  await ensureLeaflet();
   const L = getL();
   ensureLeafletDefaultIcon(L);
   const o = options || {};
@@ -198,8 +215,6 @@ export function initMap(mapId, element, dotNetRef, options) {
     });
   });
 
-  // Defer .NET callbacks so we never invoke during an outbound JS interop from WASM (e.g. setView in
-  // syncMapOptions fires moveend synchronously — immediate invokeMethodAsync deadlocks the UI thread).
   const notifyView = () => {
     queueMicrotask(() => {
       const c = map.getCenter();

@@ -1,4 +1,5 @@
 @namespace BlazorMap.Components
+@inherits BlazorInteractiveMapBase<MapDisplayOptions>
 
 <div class="blazor-map-root @CssClass" style="width:@Width;height:@Height">
     <div @ref="_mapElement"

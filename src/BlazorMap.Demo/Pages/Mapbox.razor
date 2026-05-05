@@ -1,0 +1,70 @@
+@page "/mapbox"
+@inject IConfiguration Configuration
+
+<PageTitle>BlazorMap — Mapbox GL</PageTitle>
+
+<section class="demo-panel">
+    <h1>Mapbox GL</h1>
+    <p>
+        <code>BlazorMapboxMap</code> loads Mapbox GL JS and CSS from the Mapbox CDN when the component first initializes.
+        Set your token in <code>wwwroot/appsettings.json</code> under <code>Mapbox:AccessToken</code> (or user secrets / CI variables that flow into that file at build time).
+        <strong><NavLink href="/mapbox/token-help">How to get a Mapbox access token</NavLink></strong>
+        — or see Mapbox’s
+        <a href="https://docs.mapbox.com/help/getting-started/access-tokens/" target="_blank" rel="noopener noreferrer">access token documentation</a>.
+    </p>
+    @if (string.IsNullOrWhiteSpace(_token))
+    {
+        <p class="demo-warn">
+            No access token is configured. The map will not render until you add a valid Mapbox token.
+        </p>
+    }
+</section>
+
+<section class="demo-panel">
+    <h2>Sample map</h2>
+    <div class="demo-map-wrap">
+        <BlazorMapboxMap @ref="_map"
+                         Height="380px"
+                         Options="@_options"
+                         OnMapReady="OnMapReadyAsync"
+                         OnViewChanged="OnViewChanged" />
+    </div>
+    <p class="demo-muted">@_viewSummary</p>
+</section>
+
+@code {
+    private BlazorMapboxMap? _map;
+    private string _token = "";
+    private MapboxMapDisplayOptions _options = new();
+    private string _viewSummary = "Pan or zoom to see view state.";
+
+    protected override void OnInitialized()
+    {
+        _token = Configuration["Mapbox:AccessToken"] ?? "";
+        _options = new MapboxMapDisplayOptions
+        {
+            AccessToken = _token,
+            Center = new LatLng(51.5074, -0.1278),
+            Zoom = 12,
+        };
+    }
+
+    private async Task OnMapReadyAsync()
+    {
+        if (string.IsNullOrWhiteSpace(_token) || _map is null) return;
+        await _map.AddMarkerAsync(new MapMarkerModel
+        {
+            Id = "london",
+            Position = _options.Center,
+            Title = "London",
+            PopupHtml = "<strong>Mapbox GL</strong><br/>Marker from <code>OnMapReady</code>.",
+        });
+    }
+
+    private Task OnViewChanged(MapViewState state)
+    {
+        _viewSummary = $"Center {state.Center.Latitude:F4}, {state.Center.Longitude:F4} · zoom {state.Zoom:F1}";
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+}

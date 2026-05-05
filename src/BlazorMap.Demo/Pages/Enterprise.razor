@@ -34,7 +34,7 @@
         <label><input type="checkbox" @bind="_overlay" @bind:after="ToggleOverlayAsync" /> Stamen toner labels overlay</label>
     </p>
     <div class="demo-map-wrap">
-        <BlazorMap @ref="_map"
+        <BlazorLeafletMap @ref="_map"
                    Height="380px"
                    Options="@BuildOptions()"
                    OnMapDoubleClick="HandleDbl"
@@ -48,7 +48,7 @@
 </section>
 
 @code {
-    private BlazorMap? _map;
+    private BlazorLeafletMap? _map;
     private string _log = "Toggle options or use the buttons.";
     private bool _wheel = true;
     private bool _drag = true;

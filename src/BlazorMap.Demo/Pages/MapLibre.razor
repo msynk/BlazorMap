@@ -1,0 +1,53 @@
+@page "/maplibre"
+
+<PageTitle>BlazorMap — MapLibre GL</PageTitle>
+
+<section class="demo-panel">
+    <h1>MapLibre GL</h1>
+    <p>
+        <code>BlazorMapLibreMap</code> uses <a href="https://maplibre.org/" target="_blank" rel="noopener noreferrer">MapLibre GL JS</a>
+        (open source, no vendor account required for the default demo style). Scripts load from unpkg on first use.
+    </p>
+</section>
+
+<section class="demo-panel">
+    <h2>Sample map</h2>
+    <div class="demo-map-wrap">
+        <BlazorMapLibreMap @ref="_map"
+                           Height="380px"
+                           Options="@_options"
+                           OnMapReady="OnMapReadyAsync"
+                           OnViewChanged="OnViewChanged" />
+    </div>
+    <p class="demo-muted">@_viewSummary</p>
+</section>
+
+@code {
+    private BlazorMapLibreMap? _map;
+    private readonly MapLibreMapDisplayOptions _options = new()
+    {
+        Center = new LatLng(51.5074, -0.1278),
+        Zoom = 5,
+    };
+
+    private string _viewSummary = "Pan or zoom to see view state.";
+
+    private async Task OnMapReadyAsync()
+    {
+        if (_map is null) return;
+        await _map.AddMarkerAsync(new MapMarkerModel
+        {
+            Id = "london",
+            Position = _options.Center,
+            Title = "London",
+            PopupHtml = "<strong>MapLibre GL</strong><br/>No access token needed for the default style.",
+        });
+    }
+
+    private Task OnViewChanged(MapViewState state)
+    {
+        _viewSummary = $"Center {state.Center.Latitude:F4}, {state.Center.Longitude:F4} · zoom {state.Zoom:F1}";
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+}

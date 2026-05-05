@@ -5,18 +5,22 @@ using Microsoft.JSInterop;
 
 namespace BlazorMap.Components;
 
-public partial class BlazorMap : IAsyncDisposable
+/// <summary>
+/// Shared interop surface for provider-specific map components (Leaflet, Mapbox GL, MapLibre GL, etc.).
+/// </summary>
+public abstract class BlazorInteractiveMapBase<TOptions> : ComponentBase, IAsyncDisposable
+    where TOptions : class, new()
 {
-    private const string JsModulePath = "./_content/BlazorMap/js/blazorMap.js";
-
     private readonly string _mapId = $"bm_{Guid.NewGuid():N}";
-    private ElementReference _mapElement;
+    protected ElementReference _mapElement;
     private IJSObjectReference? _module;
-    private DotNetObjectReference<BlazorMap>? _dotNetRef;
+    private DotNetObjectReference<BlazorInteractiveMapBase<TOptions>>? _dotNetRef;
     private bool _initialized;
-    private MapDisplayOptions _lastOptions = new();
+    private TOptions _lastOptions = new();
 
     [Inject] private IJSRuntime Js { get; set; } = default!;
+
+    protected abstract string JsModulePath { get; }
 
     /// <summary>CSS height of the map container (e.g. <c>400px</c>, <c>50vh</c>).</summary>
     [Parameter] public string Height { get; set; } = "320px";
@@ -26,7 +30,7 @@ public partial class BlazorMap : IAsyncDisposable
 
     [Parameter] public string? CssClass { get; set; }
 
-    [Parameter] public MapDisplayOptions Options { get; set; } = new();
+    [Parameter] public TOptions Options { get; set; } = new();
 
     [Parameter] public EventCallback<LatLng> OnMapClick { get; set; }
 
@@ -44,7 +48,7 @@ public partial class BlazorMap : IAsyncDisposable
     [Parameter] public EventCallback<(string LayerId, JsonElement Properties)> OnGeoJsonFeatureClick { get; set; }
 
     /// <summary>
-    /// Raised once after Leaflet has been created and imperative APIs (<see cref="AddMarkerAsync"/>, etc.) are safe to call.
+    /// Raised once after the map has been created and imperative APIs (<see cref="AddMarkerAsync"/>, etc.) are safe to call.
     /// Prefer this over the parent page <c>OnAfterRenderAsync</c>, which can run before the map finishes initializing.
     /// </summary>
     [Parameter] public EventCallback OnMapReady { get; set; }
@@ -100,7 +104,7 @@ public partial class BlazorMap : IAsyncDisposable
             paddingPixels);
     }
 
-    /// <summary>Fits the view to the union of all markers (similar to DevExpress <c>AutoAdjust</c>).</summary>
+    /// <summary>Fits the view to the union of all markers.</summary>
     public async ValueTask FitBoundsToMarkersAsync(int paddingPixels = 48)
     {
         await EnsureMapAsync();
@@ -253,6 +257,12 @@ public partial class BlazorMap : IAsyncDisposable
         }
     }
 
+    protected abstract object ToMapOptionsPayload(TOptions options);
+
+    protected abstract TOptions CloneOptions(TOptions options);
+
+    protected abstract bool OptionsEqual(TOptions a, TOptions b);
+
     private async ValueTask EnsureMapAsync()
     {
         if (!_initialized || _module is null)
@@ -266,7 +276,7 @@ public partial class BlazorMap : IAsyncDisposable
         if (!firstRender) return;
 
         _module = await Js.InvokeAsync<IJSObjectReference>("import", JsModulePath);
-        _dotNetRef = DotNetObjectReference.Create(this);
+        _dotNetRef = DotNetObjectReference.Create((BlazorInteractiveMapBase<TOptions>)this);
 
         await _module.InvokeVoidAsync("initMap", _mapId, _mapElement, _dotNetRef, ToMapOptionsPayload(Options));
 
@@ -290,38 +300,6 @@ public partial class BlazorMap : IAsyncDisposable
             _lastOptions = CloneOptions(o);
         }
     }
-
-    private static object ToMapOptionsPayload(MapDisplayOptions o) =>
-        new
-        {
-            center = new { lat = o.Center.Latitude, lng = o.Center.Longitude },
-            zoom = o.Zoom,
-            minZoom = o.MinZoom,
-            maxZoom = o.MaxZoom,
-            zoomControl = o.ZoomControl,
-            attributionControl = o.AttributionControl,
-            tileUrl = o.TileUrl,
-            tileAttribution = o.TileAttribution,
-            tileMaxZoom = o.TileMaxZoom,
-            tileOpacity = o.TileOpacity,
-            maxBounds = BoundsToJs(o.MaxBounds),
-            showScaleControl = o.ShowScaleControl,
-            scaleControlImperial = o.ScaleControlImperial,
-            scrollWheelZoom = o.ScrollWheelZoom,
-            doubleClickZoom = o.DoubleClickZoom,
-            boxZoom = o.BoxZoom,
-            dragging = o.Dragging,
-            keyboardNavigation = o.KeyboardNavigation,
-        };
-
-    private static object? BoundsToJs(LatLngBounds? b) =>
-        b is { } v
-            ? new
-            {
-                southWest = new { lat = v.SouthWest.Latitude, lng = v.SouthWest.Longitude },
-                northEast = new { lat = v.NorthEast.Latitude, lng = v.NorthEast.Longitude },
-            }
-            : null;
 
     [JSInvokable]
     public async Task ReportMapClick(JsonElement e)
@@ -410,56 +388,6 @@ public partial class BlazorMap : IAsyncDisposable
             s.FillOpacity,
             dashArray = s.DashArray,
         };
-    }
-
-    private static MapDisplayOptions CloneOptions(MapDisplayOptions o) =>
-        new()
-        {
-            Center = o.Center,
-            Zoom = o.Zoom,
-            MinZoom = o.MinZoom,
-            MaxZoom = o.MaxZoom,
-            ZoomControl = o.ZoomControl,
-            AttributionControl = o.AttributionControl,
-            TileUrl = o.TileUrl,
-            TileAttribution = o.TileAttribution,
-            TileMaxZoom = o.TileMaxZoom,
-            TileOpacity = o.TileOpacity,
-            MaxBounds = o.MaxBounds,
-            ShowScaleControl = o.ShowScaleControl,
-            ScaleControlImperial = o.ScaleControlImperial,
-            ScrollWheelZoom = o.ScrollWheelZoom,
-            DoubleClickZoom = o.DoubleClickZoom,
-            BoxZoom = o.BoxZoom,
-            Dragging = o.Dragging,
-            KeyboardNavigation = o.KeyboardNavigation,
-        };
-
-    private static bool OptionsEqual(MapDisplayOptions a, MapDisplayOptions b) =>
-        a.Center.Equals(b.Center)
-        && Math.Abs(a.Zoom - b.Zoom) < 1e-6
-        && a.MinZoom == b.MinZoom
-        && a.MaxZoom == b.MaxZoom
-        && a.ZoomControl == b.ZoomControl
-        && a.AttributionControl == b.AttributionControl
-        && a.TileUrl == b.TileUrl
-        && a.TileAttribution == b.TileAttribution
-        && a.TileMaxZoom == b.TileMaxZoom
-        && Math.Abs(a.TileOpacity - b.TileOpacity) < 1e-9
-        && BoundsEqual(a.MaxBounds, b.MaxBounds)
-        && a.ShowScaleControl == b.ShowScaleControl
-        && a.ScaleControlImperial == b.ScaleControlImperial
-        && a.ScrollWheelZoom == b.ScrollWheelZoom
-        && a.DoubleClickZoom == b.DoubleClickZoom
-        && a.BoxZoom == b.BoxZoom
-        && a.Dragging == b.Dragging
-        && a.KeyboardNavigation == b.KeyboardNavigation;
-
-    private static bool BoundsEqual(LatLngBounds? a, LatLngBounds? b)
-    {
-        if (a is null && b is null) return true;
-        if (a is null || b is null) return false;
-        return a.Value.SouthWest.Equals(b.Value.SouthWest) && a.Value.NorthEast.Equals(b.Value.NorthEast);
     }
 
     public async ValueTask DisposeAsync()

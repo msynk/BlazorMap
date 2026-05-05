@@ -74,7 +74,7 @@
 
 /*
  * Routed pages render inside @Body; those nodes do not carry this layout's scope
- * attribute. BlazorMap and other child components likewise render out-of-scope markup.
+ * attribute. Map components and other child components likewise render out-of-scope markup.
  * Use ::deep so demo chrome applies to all sample pages consistently.
  */
 .demo-main ::deep .demo-panel {
@@ -133,4 +133,38 @@
   overflow: auto;
   white-space: pre-wrap;
   margin-top: 0.75rem;
+}
+
+.demo-main ::deep .demo-warn {
+  color: #d29922;
+  border: 1px solid #634c1f;
+  background: #21262d;
+  border-radius: 8px;
+  padding: 0.65rem 0.85rem;
+}
+
+.demo-main ::deep .demo-muted {
+  color: #8b949e;
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+}
+
+.demo-main ::deep .demo-steps {
+  margin: 0.75rem 0 0;
+  padding-left: 1.35rem;
+  line-height: 1.6;
+}
+
+.demo-main ::deep .demo-steps li {
+  margin-bottom: 0.6rem;
+}
+
+.demo-main ::deep .demo-inline-pre {
+  margin: 0.5rem 0 0;
+  padding: 0.75rem 1rem;
+  background: #0d1117;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  overflow: auto;
+  font-size: 0.85rem;
 }

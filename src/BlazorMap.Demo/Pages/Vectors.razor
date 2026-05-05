@@ -10,7 +10,7 @@
         Click a shape to raise <code>OnVectorClick</code> (map clicks are stopped from bubbling when hitting a vector).
     </p>
     <div class="demo-map-wrap">
-        <BlazorMap @ref="_map"
+        <BlazorLeafletMap @ref="_map"
                    Height="380px"
                    Options="@_opts"
                    OnMapReady="InitialDrawAsync"
@@ -24,7 +24,7 @@
 </section>
 
 @code {
-    private BlazorMap? _map;
+    private BlazorLeafletMap? _map;
     private string _log = "Redraw loads a route, a park polygon, a circle, and a bounding box.";
 
     private readonly MapDisplayOptions _opts = new()

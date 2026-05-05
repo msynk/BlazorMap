@@ -1,13 +1,13 @@
 # BlazorMap
 
-A **Blazor WebAssembly** map component built on [Leaflet](https://leafletjs.com/). The library exposes a Razor component plus C# APIs for markers, vector layers, GeoJSON, optional tile overlays, and map events—backed by a small ES module under `_content/BlazorMap/js/`.
+A **Blazor WebAssembly** map library with **provider-specific** Razor components (**Leaflet**, **MapLibre GL JS**, **Mapbox GL JS**, and more). Each component imports a small ES module under `_content/BlazorMap/js/` that loads the vendor CSS/JS from a CDN the first time that provider initializes, so the host app does **not** need manual `<script>` / `<link>` tags for those libraries.
 
-Geographic DTOs (`LatLng`, `LatLngBounds`, `MapDisplayOptions`, etc.) live in the **`BlazorMapKit`** namespace so they stay easy to reuse without colliding with other map types in your app.
+Geographic DTOs (`LatLng`, `LatLngBounds`, `MapDisplayOptions`, `MapLibreMapDisplayOptions`, `MapboxMapDisplayOptions`, etc.) live in the **`BlazorMapKit`** namespace so they stay easy to reuse without colliding with other map types in your app.
 
 ## Requirements
 
 - **.NET 10** SDK
-- **Leaflet 1.9.x** loaded on the host page **before** Blazor starts (CSS + JS). The interop module expects `window.L` to exist; otherwise initialization throws with a clear error.
+- **Network access at runtime** (first load) to the CDN used by the provider you choose (unpkg for Leaflet and MapLibre, Mapbox for Mapbox GL).
 
 ## Quick start
 
@@ -15,31 +15,20 @@ Geographic DTOs (`LatLng`, `LatLngBounds`, `MapDisplayOptions`, etc.) live in th
 
 Add a project reference to `src/BlazorMap/BlazorMap.csproj` from your Blazor WebAssembly app (or pack the project as a NuGet package if you prefer).
 
-### 2. Load Leaflet on `index.html`
-
-Match the pattern used in the demo—Leaflet scripts in `<head>` / end of `<body>` **before** `_framework/blazor.webassembly*.js`:
-
-```html
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
-<!-- ... -->
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
-<script src="_framework/blazor.webassembly#[.{fingerprint}].js"></script>
-```
-
-### 3. Use the component
+### 2. Use a component (no vendor scripts in `index.html`)
 
 ```razor
 @using BlazorMap.Components
 @using BlazorMapKit
 
-<BlazorMap @ref="_map"
-           Height="420px"
-           Options="_options"
-           OnMapReady="OnMapReady"
-           OnViewChanged="OnViewChanged" />
+<BlazorLeafletMap @ref="_map"
+                  Height="420px"
+                  Options="_options"
+                  OnMapReady="OnMapReady"
+                  OnViewChanged="OnViewChanged" />
 
 @code {
-    private BlazorMap? _map;
+    private BlazorLeafletMap? _map;
     private readonly MapDisplayOptions _options = new()
     {
         Center = new LatLng(51.505, -0.09),
@@ -61,16 +50,47 @@ Match the pattern used in the demo—Leaflet scripts in `<head>` / end of `<body
 }
 ```
 
+**MapLibre GL** (open source, no token for the default demo style) uses `BlazorMapLibreMap` and `MapLibreMapDisplayOptions`:
+
+```razor
+<BlazorMapLibreMap Options="@_libreOptions" Height="420px" />
+
+@code {
+    private readonly MapLibreMapDisplayOptions _libreOptions = new()
+    {
+        Center = new LatLng(51.505, -0.09),
+        Zoom = 13
+    };
+}
+```
+
+**Mapbox GL** uses `BlazorMapboxMap` and `MapboxMapDisplayOptions` (requires a [Mapbox access token](https://docs.mapbox.com/help/getting-started/access-tokens/) for `mapbox://` styles):
+
+```razor
+<BlazorMapboxMap Options="@_mapboxOptions" Height="420px" />
+
+@code {
+    private readonly MapboxMapDisplayOptions _mapboxOptions = new()
+    {
+        AccessToken = "YOUR_TOKEN",
+        Center = new LatLng(51.505, -0.09),
+        Zoom = 13
+    };
+}
+```
+
 Use **`OnMapReady`** (or check `IsMapReady`) before calling imperative methods such as `AddMarkerAsync`—`OnAfterRenderAsync` on the parent page can run before the map finishes initializing.
 
 ## Features
 
-- **Display**: center, zoom, min/max zoom, base tile URL and attribution, tile opacity, optional `MaxBounds`, zoom/attribution/scale controls, scroll wheel / double-click / box zoom / drag / keyboard toggles.
-- **Markers**: HTML popups, tooltips, custom icons, drag end callbacks, `SyncMarkersAsync`, fit bounds to markers.
-- **Vectors**: polylines, polygons, circles, rectangles, GeoJSON layers; shared `VectorPathStyle` (color, weight, opacity, fill, dash array).
-- **Tile overlays**: additional `TileOverlayOptions` layers on top of the base map.
+Shared API on `BlazorInteractiveMapBase<TOptions>` (implemented by each provider component):
+
+- **Display**: center, zoom, min/max zoom, interaction toggles; Leaflet adds base tile URL/attribution/opacity and scale control; MapLibre/Mapbox GL add style URL and navigation control (Mapbox also uses an access token for Mapbox-hosted assets).
+- **Markers**: HTML popups (GL engines: no Leaflet-style tooltips on markers), custom icons, drag end callbacks, `SyncMarkersAsync`, fit bounds to markers.
+- **Vectors**: polylines, polygons, circles, rectangles, GeoJSON layers; shared `VectorPathStyle`.
+- **Tile overlays** (Leaflet and GL raster): `TileOverlayOptions` on top of the base map.
 - **Events**: map click/double-click, view changed, marker click/drag end, vector click, GeoJSON feature click (properties as `JsonElement`).
-- **View helpers**: `GetViewAsync`, `SetViewAsync`, `FlyToAsync`, `FitBoundsAsync`, `InvalidateSizeAsync` (e.g. after layout changes).
+- **View helpers**: `GetViewAsync`, `SetViewAsync`, `FlyToAsync`, `FitBoundsAsync`, `InvalidateSizeAsync`.
 
 ## Run the demo
 
@@ -80,13 +100,13 @@ From the repository root:
 dotnet run --project src/BlazorMap.Demo/BlazorMap.Demo.csproj
 ```
 
-The demo includes pages for markers, vectors, GeoJSON, tiles, events, and enterprise-style options (e.g. max bounds, scale control).
+The demo includes Leaflet pages (markers, vectors, GeoJSON, tiles, events, enterprise-style options), **MapLibre** (`/maplibre`, no token), and **Mapbox** (`/mapbox`). For Mapbox, set `Mapbox:AccessToken` in `src/BlazorMap.Demo/wwwroot/appsettings.json`.
 
 ## Project layout
 
 | Path | Role |
 |------|------|
-| `src/BlazorMap/` | Razor class library: `BlazorMap` component, models, `wwwroot/js/blazorMap.js` |
+| `src/BlazorMap/` | Razor class library: `BlazorLeafletMap`, `BlazorMapLibreMap`, `BlazorMapboxMap`, models, `wwwroot/js/` modules |
 | `src/BlazorMap.Demo/` | Sample Blazor WebAssembly host |
 
 ## License
