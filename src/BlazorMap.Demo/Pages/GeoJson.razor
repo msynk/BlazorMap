@@ -28,7 +28,7 @@
 
     private readonly BlazorLeafletMapOptions _opts = new()
     {
-        Center = new LatLng(40.7128, -74.0060),
+        Center = new BlazorMapLatLng(40.7128, -74.0060),
         Zoom = 11,
     };
 
@@ -65,9 +65,9 @@
         await _map.AddGeoJsonAsync(
             "demo",
             SampleGeoJson,
-            new VectorPathStyle { Color = "#a371f7", Weight = 3, FillOpacity = 0.25 });
+            new BlazorMapVectorPathStyle { Color = "#a371f7", Weight = 3, FillOpacity = 0.25 });
         await _map.FitBoundsAsync(
-            new LatLngBounds(new LatLng(40.71, -74.03), new LatLng(40.83, -73.96)));
+            new BlazorMapLatLngBounds(new BlazorMapLatLng(40.71, -74.03), new BlazorMapLatLng(40.83, -73.96)));
         _log = "GeoJSON loaded. Click a feature.";
         StateHasChanged();
     }

@@ -59,13 +59,13 @@
     private BlazorLeafletMapOptions BuildOptions() =>
         new()
         {
-            Center = new LatLng(51.5074, -0.1278),
+            Center = new BlazorMapLatLng(51.5074, -0.1278),
             Zoom = 11,
             ShowScaleControl = _scale,
             ScrollWheelZoom = _wheel,
             Dragging = _drag,
             MaxBounds = _maxBounds
-                ? new LatLngBounds(new LatLng(51.25, -0.55), new LatLng(51.75, 0.35))
+                ? new BlazorMapLatLngBounds(new BlazorMapLatLng(51.25, -0.55), new BlazorMapLatLng(51.75, 0.35))
                 : null,
         };
 
@@ -77,7 +77,7 @@
             try
             {
                 await _map.AddTileOverlayAsync(
-                    new TileOverlayOptions
+                    new BlazorMapTileOverlayOptions
                     {
                         Id = "labels",
                         UrlTemplate = "https://stamen-tiles.a.ssl.fastly.net/toner-labels/{z}/{x}/{y}.png",
@@ -104,40 +104,40 @@
         StateHasChanged();
     }
 
-    private Task HandleDbl(LatLng p)
+    private Task HandleDbl(BlazorMapLatLng p)
     {
         _log = $"Double-click at {p.Lat:F4}, {p.Lng:F4} (Leaflet still zooms unless you disable DoubleClickZoom).";
         return Task.CompletedTask;
     }
 
-    private Task HandleView(MapViewState _) => Task.CompletedTask;
+    private Task HandleView(BlazorMapViewState _) => Task.CompletedTask;
 
     private async Task AddClusterLikePinsAsync()
     {
         if (_map is null) return;
         await _map.ClearMarkersAsync();
         await _map.AddMarkerAsync(
-            new MapMarkerModel
+            new BlazorMapMarkerModel
             {
                 Id = "a",
-                Position = new LatLng(51.52, -0.10),
+                Position = new BlazorMapLatLng(51.52, -0.10),
                 TooltipHtml = "<b>West End</b> (tooltip)",
                 PopupHtml = "Popup A",
                 ZIndexOffset = 10,
             });
         await _map.AddMarkerAsync(
-            new MapMarkerModel
+            new BlazorMapMarkerModel
             {
                 Id = "b",
-                Position = new LatLng(51.50, -0.08),
+                Position = new BlazorMapLatLng(51.50, -0.08),
                 TooltipHtml = "City (tooltip)",
                 PopupHtml = "Popup B",
             });
         await _map.AddMarkerAsync(
-            new MapMarkerModel
+            new BlazorMapMarkerModel
             {
                 Id = "c",
-                Position = new LatLng(51.48, -0.06),
+                Position = new BlazorMapLatLng(51.48, -0.06),
                 TooltipHtml = "South bank (tooltip)",
                 PopupHtml = "Popup C",
             });

@@ -3,7 +3,7 @@ namespace BlazorMap;
 /// <summary>Initial display settings for <see cref="BlazorMapLibreMap"/> (MapLibre GL JS, open source).</summary>
 public sealed class BlazorMapLibreMapOptions
 {
-    public LatLng Center { get; set; } = new(51.505, -0.09);
+    public BlazorMapLatLng Center { get; set; } = new(51.505, -0.09);
 
     public double Zoom { get; set; } = 13;
 
@@ -19,7 +19,7 @@ public sealed class BlazorMapLibreMapOptions
     public bool AttributionControl { get; set; } = true;
 
     /// <summary>When set, panning is limited to this geographic rectangle.</summary>
-    public LatLngBounds? MaxBounds { get; set; }
+    public BlazorMapLatLngBounds? MaxBounds { get; set; }
 
     public bool ScrollWheelZoom { get; set; } = true;
 

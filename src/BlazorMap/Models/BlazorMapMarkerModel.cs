@@ -1,10 +1,10 @@
 namespace BlazorMap;
 
 /// <summary>Declarative marker definition for batch updates.</summary>
-public sealed class MapMarkerModel
+public sealed class BlazorMapMarkerModel
 {
     public required string Id { get; init; }
-    public required LatLng Position { get; init; }
+    public required BlazorMapLatLng Position { get; init; }
     public string? PopupHtml { get; init; }
     public string? Title { get; init; }
     public bool Draggable { get; init; }

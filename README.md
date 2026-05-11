@@ -2,7 +2,7 @@
 
 A **Blazor WebAssembly** map library with **provider-specific** Razor components (**Leaflet**, **MapLibre GL JS**, **Mapbox GL JS**, and more). Each component imports a small ES module under `_content/BlazorMap/js/` that loads the vendor CSS/JS from a CDN the first time that provider initializes, so the host app does **not** need manual `<script>` / `<link>` tags for those libraries.
 
-All public types (map components, `LatLng`, `LatLngBounds`, `BlazorLeafletMapOptions`, `BlazorMapLibreMapOptions`, `BlazorMapboxMapOptions`, etc.) live in the single **`BlazorMap`** namespace so consuming apps only need one `@using` directive.
+All public types (map components, `BlazorMapLatLng`, `BlazorMapLatLngBounds`, `BlazorMapMarkerModel`, `BlazorMapViewState`, `BlazorMapTileOverlayOptions`, `BlazorMapVectorPathStyle`, `BlazorLeafletMapOptions`, `BlazorMapLibreMapOptions`, `BlazorMapboxMapOptions`, etc.) live in the single **`BlazorMap`** namespace so consuming apps only need one `@using` directive.
 
 ## Requirements
 
@@ -30,14 +30,14 @@ Add a project reference to `src/BlazorMap/BlazorMap.csproj` from your Blazor Web
     private BlazorLeafletMap? _map;
     private readonly BlazorLeafletMapOptions _options = new()
     {
-        Center = new LatLng(51.505, -0.09),
+        Center = new BlazorMapLatLng(51.505, -0.09),
         Zoom = 13
     };
 
     private async Task OnMapReady()
     {
         if (_map is null) return;
-        await _map.AddMarkerAsync(new MapMarkerModel
+        await _map.AddMarkerAsync(new BlazorMapMarkerModel
         {
             Id = "home",
             Position = _options.Center,
@@ -45,7 +45,7 @@ Add a project reference to `src/BlazorMap/BlazorMap.csproj` from your Blazor Web
         });
     }
 
-    private Task OnViewChanged(MapViewState state) => Task.CompletedTask;
+    private Task OnViewChanged(BlazorMapViewState state) => Task.CompletedTask;
 }
 ```
 
@@ -57,7 +57,7 @@ Add a project reference to `src/BlazorMap/BlazorMap.csproj` from your Blazor Web
 @code {
     private readonly BlazorMapLibreMapOptions _libreOptions = new()
     {
-        Center = new LatLng(51.505, -0.09),
+        Center = new BlazorMapLatLng(51.505, -0.09),
         Zoom = 13
     };
 }
@@ -72,7 +72,7 @@ Add a project reference to `src/BlazorMap/BlazorMap.csproj` from your Blazor Web
     private readonly BlazorMapboxMapOptions _mapboxOptions = new()
     {
         AccessToken = "YOUR_TOKEN",
-        Center = new LatLng(51.505, -0.09),
+        Center = new BlazorMapLatLng(51.505, -0.09),
         Zoom = 13
     };
 }
@@ -86,8 +86,8 @@ Shared API on `BlazorInteractiveMapBase<TOptions>` (implemented by each provider
 
 - **Display**: center, zoom, min/max zoom, interaction toggles; Leaflet adds base tile URL/attribution/opacity and scale control; MapLibre/Mapbox GL add style URL and navigation control (Mapbox also uses an access token for Mapbox-hosted assets).
 - **Markers**: HTML popups (GL engines: no Leaflet-style tooltips on markers), custom icons, drag end callbacks, `SyncMarkersAsync`, fit bounds to markers.
-- **Vectors**: polylines, polygons, circles, rectangles, GeoJSON layers; shared `VectorPathStyle`.
-- **Tile overlays** (Leaflet and GL raster): `TileOverlayOptions` on top of the base map.
+- **Vectors**: polylines, polygons, circles, rectangles, GeoJSON layers; shared `BlazorMapVectorPathStyle`.
+- **Tile overlays** (Leaflet and GL raster): `BlazorMapTileOverlayOptions` on top of the base map.
 - **Events**: map click/double-click, view changed, marker click/drag end, vector click, GeoJSON feature click (properties as `JsonElement`).
 - **View helpers**: `GetViewAsync`, `SetViewAsync`, `FlyToAsync`, `FitBoundsAsync`, `InvalidateSizeAsync`.
 
@@ -105,7 +105,7 @@ The demo includes Leaflet pages (markers, vectors, GeoJSON, tiles, events, enter
 
 | Path | Role |
 |------|------|
-| `src/BlazorMap/` | Razor class library: each map under `Components/<Name>/` (component + its options type, e.g. `BlazorLeafletMapOptions`, `BlazorMapLibreMapOptions`, `BlazorMapboxMapOptions`), shared DTOs in `Models/`, `wwwroot/js/` modules |
+| `src/BlazorMap/` | Razor class library: each map under `Components/<Name>/` (component + options, e.g. `BlazorLeafletMapOptions`), shared geo/DTO types in `Models/` (`BlazorMapLatLng`, `BlazorMapLatLngBounds`, `BlazorMapMarkerModel`, `BlazorMapViewState`, `BlazorMapTileOverlayOptions`, `BlazorMapVectorPathStyle`, …), `wwwroot/js/` modules |
 | `src/BlazorMap.Demo/` | Sample Blazor WebAssembly host |
 
 ## License

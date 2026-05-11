@@ -33,7 +33,7 @@
 
     private readonly BlazorLeafletMapOptions _opts = new()
     {
-        Center = new LatLng(48.8566, 2.3522),
+        Center = new BlazorMapLatLng(48.8566, 2.3522),
         Zoom = 12,
     };
 
@@ -41,23 +41,23 @@
     {
         if (_map is null || !_map.IsMapReady) return;
         await _map.AddMarkerAsync(
-            new MapMarkerModel
+            new BlazorMapMarkerModel
             {
                 Id = "paris",
-                Position = new LatLng(48.8566, 2.3522),
+                Position = new BlazorMapLatLng(48.8566, 2.3522),
                 PopupHtml = "<b>Paris</b><br/>Built-in popup.",
                 Title = "Paris",
             });
         await _map.AddMarkerAsync(
-            new MapMarkerModel
+            new BlazorMapMarkerModel
             {
                 Id = "london",
-                Position = new LatLng(51.5074, -0.1278),
+                Position = new BlazorMapLatLng(51.5074, -0.1278),
                 PopupHtml = "<b>London</b><br/>Try “Open London popup”.",
                 Draggable = true,
             });
         await _map.FitBoundsAsync(
-            new LatLngBounds(new LatLng(48.75, 2.15), new LatLng(51.6, -0.05)));
+            new BlazorMapLatLngBounds(new BlazorMapLatLng(48.75, 2.15), new BlazorMapLatLng(51.6, -0.05)));
     }
 
     private async Task AddRandomMarkerAsync()
@@ -68,10 +68,10 @@
         var lat = 48.85 + Random.Shared.NextDouble() * 0.12;
         var lng = 2.28 + Random.Shared.NextDouble() * 0.2;
         await _map.AddMarkerAsync(
-            new MapMarkerModel
+            new BlazorMapMarkerModel
             {
                 Id = id,
-                Position = new LatLng(lat, lng),
+                Position = new BlazorMapLatLng(lat, lng),
                 PopupHtml = $"<span>Marker <code>{id}</code></span>",
             });
         Append($"Added {id} at {lat:F4}, {lng:F4}");
@@ -97,7 +97,7 @@
         return Task.CompletedTask;
     }
 
-    private Task HandleMarkerDragEnd((string Id, LatLng Position) e)
+    private Task HandleMarkerDragEnd((string Id, BlazorMapLatLng Position) e)
     {
         Append($"Drag end {e.Id} → {e.Position.Lat:F5}, {e.Position.Lng:F5}");
         return Task.CompletedTask;

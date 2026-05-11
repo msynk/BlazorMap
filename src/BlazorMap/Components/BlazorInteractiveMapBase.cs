@@ -31,18 +31,18 @@ public abstract class BlazorInteractiveMapBase<TOptions> : ComponentBase, IAsync
 
     [Parameter] public TOptions Options { get; set; } = new();
 
-    [Parameter] public EventCallback<LatLng> OnMapClick { get; set; }
+    [Parameter] public EventCallback<BlazorMapLatLng> OnMapClick { get; set; }
 
-    [Parameter] public EventCallback<LatLng> OnMapDoubleClick { get; set; }
+    [Parameter] public EventCallback<BlazorMapLatLng> OnMapDoubleClick { get; set; }
 
-    [Parameter] public EventCallback<MapViewState> OnViewChanged { get; set; }
+    [Parameter] public EventCallback<BlazorMapViewState> OnViewChanged { get; set; }
 
     [Parameter] public EventCallback<string> OnMarkerClick { get; set; }
 
-    [Parameter] public EventCallback<(string Id, LatLng Position)> OnMarkerDragEnd { get; set; }
+    [Parameter] public EventCallback<(string Id, BlazorMapLatLng Position)> OnMarkerDragEnd { get; set; }
 
     [Parameter]
-    public EventCallback<(string LayerId, string Kind, LatLng Position)> OnVectorClick { get; set; }
+    public EventCallback<(string LayerId, string Kind, BlazorMapLatLng Position)> OnVectorClick { get; set; }
 
     [Parameter] public EventCallback<(string LayerId, JsonElement Properties)> OnGeoJsonFeatureClick { get; set; }
 
@@ -65,14 +65,14 @@ public abstract class BlazorInteractiveMapBase<TOptions> : ComponentBase, IAsync
         await _module.InvokeVoidAsync("invalidateSize", _mapId);
     }
 
-    public async Task<MapViewState> GetViewAsync()
+    public async Task<BlazorMapViewState> GetViewAsync()
     {
         await EnsureMapAsync();
         var el = await _module!.InvokeAsync<JsonElement>("getView", _mapId);
         return ParseViewState(el);
     }
 
-    public async ValueTask SetViewAsync(LatLng center, double? zoom = null, bool animate = true)
+    public async ValueTask SetViewAsync(BlazorMapLatLng center, double? zoom = null, bool animate = true)
     {
         await EnsureMapAsync();
         await _module!.InvokeVoidAsync(
@@ -84,13 +84,13 @@ public abstract class BlazorInteractiveMapBase<TOptions> : ComponentBase, IAsync
             animate);
     }
 
-    public async ValueTask FlyToAsync(LatLng center, double? zoom = null)
+    public async ValueTask FlyToAsync(BlazorMapLatLng center, double? zoom = null)
     {
         await EnsureMapAsync();
         await _module!.InvokeVoidAsync("flyTo", _mapId, center.Latitude, center.Longitude, zoom);
     }
 
-    public async ValueTask FitBoundsAsync(LatLngBounds bounds, int paddingPixels = 48)
+    public async ValueTask FitBoundsAsync(BlazorMapLatLngBounds bounds, int paddingPixels = 48)
     {
         await EnsureMapAsync();
         await _module!.InvokeVoidAsync(
@@ -110,7 +110,7 @@ public abstract class BlazorInteractiveMapBase<TOptions> : ComponentBase, IAsync
         await _module!.InvokeVoidAsync("fitBoundsToMarkers", _mapId, paddingPixels);
     }
 
-    public async ValueTask AddMarkerAsync(MapMarkerModel marker)
+    public async ValueTask AddMarkerAsync(BlazorMapMarkerModel marker)
     {
         await EnsureMapAsync();
         await _module!.InvokeVoidAsync(
@@ -146,7 +146,7 @@ public abstract class BlazorInteractiveMapBase<TOptions> : ComponentBase, IAsync
         await _module.InvokeVoidAsync("clearMarkers", _mapId);
     }
 
-    public async ValueTask SetMarkerPositionAsync(string markerId, LatLng position)
+    public async ValueTask SetMarkerPositionAsync(string markerId, BlazorMapLatLng position)
     {
         if (!_initialized || _module is null) return;
         await _module.InvokeVoidAsync(
@@ -163,23 +163,23 @@ public abstract class BlazorInteractiveMapBase<TOptions> : ComponentBase, IAsync
         await _module.InvokeVoidAsync("openMarkerPopup", _mapId, markerId);
     }
 
-    public async ValueTask AddPolylineAsync(string layerId, IReadOnlyList<LatLng> path, VectorPathStyle? style = null)
+    public async ValueTask AddPolylineAsync(string layerId, IReadOnlyList<BlazorMapLatLng> path, BlazorMapVectorPathStyle? style = null)
     {
         await EnsureMapAsync();
-        await _module!.InvokeVoidAsync("addPolyline", _mapId, layerId, ToJsLatLngs(path), ToJsStyle(style));
+        await _module!.InvokeVoidAsync("addPolyline", _mapId, layerId, ToJsBlazorMapLatLngs(path), ToJsStyle(style));
     }
 
-    public async ValueTask AddPolygonAsync(string layerId, IReadOnlyList<LatLng> ring, VectorPathStyle? style = null)
+    public async ValueTask AddPolygonAsync(string layerId, IReadOnlyList<BlazorMapLatLng> ring, BlazorMapVectorPathStyle? style = null)
     {
         await EnsureMapAsync();
-        await _module!.InvokeVoidAsync("addPolygon", _mapId, layerId, ToJsLatLngs(ring), ToJsStyle(style));
+        await _module!.InvokeVoidAsync("addPolygon", _mapId, layerId, ToJsBlazorMapLatLngs(ring), ToJsStyle(style));
     }
 
     public async ValueTask AddCircleAsync(
         string layerId,
-        LatLng center,
+        BlazorMapLatLng center,
         double radiusMeters,
-        VectorPathStyle? style = null)
+        BlazorMapVectorPathStyle? style = null)
     {
         await EnsureMapAsync();
         await _module!.InvokeVoidAsync(
@@ -192,7 +192,7 @@ public abstract class BlazorInteractiveMapBase<TOptions> : ComponentBase, IAsync
             ToJsStyle(style));
     }
 
-    public async ValueTask AddRectangleAsync(string layerId, LatLngBounds bounds, VectorPathStyle? style = null)
+    public async ValueTask AddRectangleAsync(string layerId, BlazorMapLatLngBounds bounds, BlazorMapVectorPathStyle? style = null)
     {
         await EnsureMapAsync();
         await _module!.InvokeVoidAsync(
@@ -206,13 +206,13 @@ public abstract class BlazorInteractiveMapBase<TOptions> : ComponentBase, IAsync
             ToJsStyle(style));
     }
 
-    public async ValueTask AddGeoJsonAsync(string layerId, string geoJson, VectorPathStyle? style = null)
+    public async ValueTask AddGeoJsonAsync(string layerId, string geoJson, BlazorMapVectorPathStyle? style = null)
     {
         await EnsureMapAsync();
         await _module!.InvokeVoidAsync("addGeoJson", _mapId, layerId, geoJson, ToJsStyle(style));
     }
 
-    public async ValueTask AddTileOverlayAsync(TileOverlayOptions overlay)
+    public async ValueTask AddTileOverlayAsync(BlazorMapTileOverlayOptions overlay)
     {
         await EnsureMapAsync();
         await _module!.InvokeVoidAsync(
@@ -247,7 +247,7 @@ public abstract class BlazorInteractiveMapBase<TOptions> : ComponentBase, IAsync
         await _module.InvokeVoidAsync("clearVectorLayers", _mapId);
     }
 
-    public async ValueTask SyncMarkersAsync(IEnumerable<MapMarkerModel> markers)
+    public async ValueTask SyncMarkersAsync(IEnumerable<BlazorMapMarkerModel> markers)
     {
         await ClearMarkersAsync();
         foreach (var m in markers)
@@ -303,7 +303,7 @@ public abstract class BlazorInteractiveMapBase<TOptions> : ComponentBase, IAsync
     [JSInvokable]
     public async Task ReportMapClick(JsonElement e)
     {
-        var ll = ReadLatLng(e);
+        var ll = ReadBlazorMapLatLng(e);
         if (OnMapClick.HasDelegate)
         {
             await OnMapClick.InvokeAsync(ll);
@@ -314,7 +314,7 @@ public abstract class BlazorInteractiveMapBase<TOptions> : ComponentBase, IAsync
     public async Task ReportMapDoubleClick(JsonElement e)
     {
         if (!OnMapDoubleClick.HasDelegate) return;
-        await OnMapDoubleClick.InvokeAsync(ReadLatLng(e));
+        await OnMapDoubleClick.InvokeAsync(ReadBlazorMapLatLng(e));
     }
 
     [JSInvokable]
@@ -337,14 +337,14 @@ public abstract class BlazorInteractiveMapBase<TOptions> : ComponentBase, IAsync
     public async Task ReportMarkerDragEnd(string markerId, JsonElement position)
     {
         if (!OnMarkerDragEnd.HasDelegate) return;
-        await OnMarkerDragEnd.InvokeAsync((markerId, ReadLatLng(position)));
+        await OnMarkerDragEnd.InvokeAsync((markerId, ReadBlazorMapLatLng(position)));
     }
 
     [JSInvokable]
     public async Task ReportVectorClick(string layerId, string kind, JsonElement position)
     {
         if (!OnVectorClick.HasDelegate) return;
-        await OnVectorClick.InvokeAsync((layerId, kind, ReadLatLng(position)));
+        await OnVectorClick.InvokeAsync((layerId, kind, ReadBlazorMapLatLng(position)));
     }
 
     [JSInvokable]
@@ -354,28 +354,28 @@ public abstract class BlazorInteractiveMapBase<TOptions> : ComponentBase, IAsync
         await OnGeoJsonFeatureClick.InvokeAsync((layerId, properties));
     }
 
-    private static MapViewState ParseViewState(JsonElement e)
+    private static BlazorMapViewState ParseViewState(JsonElement e)
     {
-        var center = ReadLatLng(e.GetProperty("center"));
+        var center = ReadBlazorMapLatLng(e.GetProperty("center"));
         var zoom = e.GetProperty("zoom").GetDouble();
         var b = e.GetProperty("bounds");
-        var sw = ReadLatLng(b.GetProperty("southWest"));
-        var ne = ReadLatLng(b.GetProperty("northEast"));
-        return new MapViewState
+        var sw = ReadBlazorMapLatLng(b.GetProperty("southWest"));
+        var ne = ReadBlazorMapLatLng(b.GetProperty("northEast"));
+        return new BlazorMapViewState
         {
             Center = center,
             Zoom = zoom,
-            Bounds = new LatLngBounds(sw, ne),
+            Bounds = new BlazorMapLatLngBounds(sw, ne),
         };
     }
 
-    private static LatLng ReadLatLng(JsonElement e) =>
+    private static BlazorMapLatLng ReadBlazorMapLatLng(JsonElement e) =>
         new(e.GetProperty("lat").GetDouble(), e.GetProperty("lng").GetDouble());
 
-    private static object[] ToJsLatLngs(IReadOnlyList<LatLng> pts) =>
+    private static object[] ToJsBlazorMapLatLngs(IReadOnlyList<BlazorMapLatLng> pts) =>
         pts.Select(p => (object)new { lat = p.Latitude, lng = p.Longitude }).ToArray();
 
-    private static object? ToJsStyle(VectorPathStyle? s)
+    private static object? ToJsStyle(BlazorMapVectorPathStyle? s)
     {
         if (s is null) return null;
         return new

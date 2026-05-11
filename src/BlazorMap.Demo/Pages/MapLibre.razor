@@ -26,7 +26,7 @@
     private BlazorMapLibreMap? _map;
     private readonly BlazorMapLibreMapOptions _options = new()
     {
-        Center = new LatLng(51.5074, -0.1278),
+        Center = new BlazorMapLatLng(51.5074, -0.1278),
         Zoom = 5,
     };
 
@@ -35,7 +35,7 @@
     private async Task OnMapReadyAsync()
     {
         if (_map is null) return;
-        await _map.AddMarkerAsync(new MapMarkerModel
+        await _map.AddMarkerAsync(new BlazorMapMarkerModel
         {
             Id = "london",
             Position = _options.Center,
@@ -44,7 +44,7 @@
         });
     }
 
-    private Task OnViewChanged(MapViewState state)
+    private Task OnViewChanged(BlazorMapViewState state)
     {
         _viewSummary = $"Center {state.Center.Latitude:F4}, {state.Center.Longitude:F4} · zoom {state.Zoom:F1}";
         StateHasChanged();

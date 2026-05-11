@@ -23,7 +23,7 @@ public partial class BlazorMapLibreMap
             keyboardNavigation = o.KeyboardNavigation,
         };
 
-    private static object? BoundsToJs(LatLngBounds? b) =>
+    private static object? BoundsToJs(BlazorMapLatLngBounds? b) =>
         b is { } v
             ? new
             {
@@ -67,7 +67,7 @@ public partial class BlazorMapLibreMap
         && a.DragRotate == b.DragRotate
         && a.KeyboardNavigation == b.KeyboardNavigation;
 
-    private static bool BoundsEqual(LatLngBounds? x, LatLngBounds? y)
+    private static bool BoundsEqual(BlazorMapLatLngBounds? x, BlazorMapLatLngBounds? y)
     {
         if (x is null && y is null) return true;
         if (x is null || y is null) return false;

@@ -27,7 +27,7 @@ public partial class BlazorLeafletMap
             keyboardNavigation = o.KeyboardNavigation,
         };
 
-    private static object? BoundsToJs(LatLngBounds? b) =>
+    private static object? BoundsToJs(BlazorMapLatLngBounds? b) =>
         b is { } v
             ? new
             {
@@ -79,7 +79,7 @@ public partial class BlazorLeafletMap
         && a.Dragging == b.Dragging
         && a.KeyboardNavigation == b.KeyboardNavigation;
 
-    private static bool BoundsEqual(LatLngBounds? a, LatLngBounds? b)
+    private static bool BoundsEqual(BlazorMapLatLngBounds? a, BlazorMapLatLngBounds? b)
     {
         if (a is null && b is null) return true;
         if (a is null || b is null) return false;

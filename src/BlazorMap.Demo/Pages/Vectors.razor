@@ -29,7 +29,7 @@
 
     private readonly BlazorLeafletMapOptions _opts = new()
     {
-        Center = new LatLng(37.7749, -122.4194),
+        Center = new BlazorMapLatLng(37.7749, -122.4194),
         Zoom = 12,
     };
 
@@ -54,36 +54,36 @@
         await _map.AddPolylineAsync(
             "route",
             [
-                new LatLng(37.80, -122.42),
-                new LatLng(37.79, -122.41),
-                new LatLng(37.78, -122.40),
-                new LatLng(37.77, -122.395),
+                new BlazorMapLatLng(37.80, -122.42),
+                new BlazorMapLatLng(37.79, -122.41),
+                new BlazorMapLatLng(37.78, -122.40),
+                new BlazorMapLatLng(37.77, -122.395),
             ],
-            new VectorPathStyle { Color = "#f85149", Weight = 5, Opacity = 0.9 });
+            new BlazorMapVectorPathStyle { Color = "#f85149", Weight = 5, Opacity = 0.9 });
 
         await _map.AddPolygonAsync(
             "park",
             [
-                new LatLng(37.769, -122.486),
-                new LatLng(37.771, -122.475),
-                new LatLng(37.765, -122.472),
-                new LatLng(37.762, -122.482),
+                new BlazorMapLatLng(37.769, -122.486),
+                new BlazorMapLatLng(37.771, -122.475),
+                new BlazorMapLatLng(37.765, -122.472),
+                new BlazorMapLatLng(37.762, -122.482),
             ],
-            new VectorPathStyle { Color = "#3fb950", FillOpacity = 0.35, Weight = 2 });
+            new BlazorMapVectorPathStyle { Color = "#3fb950", FillOpacity = 0.35, Weight = 2 });
 
         await _map.AddCircleAsync(
             "radius",
-            new LatLng(37.7849, -122.4094),
+            new BlazorMapLatLng(37.7849, -122.4094),
             radiusMeters: 900,
-            new VectorPathStyle { Color = "#58a6ff", FillOpacity = 0.15, Weight = 2 });
+            new BlazorMapVectorPathStyle { Color = "#58a6ff", FillOpacity = 0.15, Weight = 2 });
 
         await _map.AddRectangleAsync(
             "box",
-            new LatLngBounds(new LatLng(37.748, -122.44), new LatLng(37.756, -122.42)),
-            new VectorPathStyle { Color = "#d29922", FillOpacity = 0.12, Weight = 2, DashArray = "6 4" });
+            new BlazorMapLatLngBounds(new BlazorMapLatLng(37.748, -122.44), new BlazorMapLatLng(37.756, -122.42)),
+            new BlazorMapVectorPathStyle { Color = "#d29922", FillOpacity = 0.12, Weight = 2, DashArray = "6 4" });
 
         await _map.FitBoundsAsync(
-            new LatLngBounds(new LatLng(37.755, -122.49), new LatLng(37.805, -122.38)));
+            new BlazorMapLatLngBounds(new BlazorMapLatLng(37.755, -122.49), new BlazorMapLatLng(37.805, -122.38)));
 
         _log = "Sample vectors drawn. Click a shape to log its layer id.";
     }
@@ -95,7 +95,7 @@
         _log = "All vector layers cleared.";
     }
 
-    private Task HandleVectorClick((string LayerId, string Kind, LatLng Position) e)
+    private Task HandleVectorClick((string LayerId, string Kind, BlazorMapLatLng Position) e)
     {
         _log = $"{e.Kind} “{e.LayerId}” @ {e.Position.Lat:F5}, {e.Position.Lng:F5}";
         return Task.CompletedTask;

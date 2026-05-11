@@ -3,7 +3,7 @@ namespace BlazorMap;
 /// <summary>Initial display and tile settings for <see cref="BlazorLeafletMap"/>.</summary>
 public sealed class BlazorLeafletMapOptions
 {
-    public LatLng Center { get; set; } = new(51.505, -0.09);
+    public BlazorMapLatLng Center { get; set; } = new(51.505, -0.09);
     public double Zoom { get; set; } = 13;
     public int? MinZoom { get; set; }
     public int? MaxZoom { get; set; }
@@ -23,7 +23,7 @@ public sealed class BlazorLeafletMapOptions
     public double TileOpacity { get; set; } = 1;
 
     /// <summary>When set, panning is limited to this geographic rectangle (common in enterprise maps).</summary>
-    public LatLngBounds? MaxBounds { get; set; }
+    public BlazorMapLatLngBounds? MaxBounds { get; set; }
 
     /// <summary>Show a metric/imperial scale bar (similar to map controls in commercial suites).</summary>
     public bool ShowScaleControl { get; set; }
