@@ -1,6 +1,6 @@
-namespace BlazorMapKit;
+namespace BlazorMap;
 
-/// <summary>Initial display settings for <see cref="T:BlazorMap.Components.BlazorMapLibreMap"/> (MapLibre GL JS, open source).</summary>
+/// <summary>Initial display settings for <see cref="BlazorMapLibreMap"/> (MapLibre GL JS, open source).</summary>
 public sealed class MapLibreMapDisplayOptions
 {
     public LatLng Center { get; set; } = new(51.505, -0.09);

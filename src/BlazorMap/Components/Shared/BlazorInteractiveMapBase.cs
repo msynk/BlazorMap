@@ -1,9 +1,8 @@
 using System.Text.Json;
-using BlazorMapKit;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
-namespace BlazorMap.Components;
+namespace BlazorMap;
 
 /// <summary>
 /// Shared interop surface for provider-specific map components (Leaflet, Mapbox GL, MapLibre GL, etc.).

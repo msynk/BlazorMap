@@ -1,4 +1,4 @@
-namespace BlazorMapKit;
+namespace BlazorMap;
 
 /// <summary>Geographic coordinate in WGS84 (EPSG:4326).</summary>
 public readonly record struct LatLng(double Latitude, double Longitude)

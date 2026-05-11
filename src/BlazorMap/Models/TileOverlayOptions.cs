@@ -1,4 +1,4 @@
-namespace BlazorMapKit;
+namespace BlazorMap;
 
 /// <summary>Optional XYZ tile layer stacked above the base map (weather, labels, etc.).</summary>
 public sealed class TileOverlayOptions

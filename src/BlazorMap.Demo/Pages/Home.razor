@@ -8,7 +8,7 @@
     <p>
         This solution ships a reusable <strong>BlazorMap</strong> Razor Class Library with provider-specific components
         (for example <code>BlazorLeafletMap</code>, <code>BlazorMapLibreMap</code>, and <code>BlazorMapboxMap</code>), each loading its vendor scripts from a CDN on first use.
-        Shared geographic DTOs live in the <code>BlazorMapKit</code> namespace.
+        Components and geographic DTOs share the single <code>BlazorMap</code> namespace, so consuming apps only need <code>@("@using BlazorMap")</code>.
         The typed .NET API covers markers, vector shapes, GeoJSON, custom tiles, and map events where the underlying engine supports them.
     </p>
     <p>
@@ -69,7 +69,7 @@
 </section>
 
 @code {
-    private readonly MapDisplayOptions _opts = new()
+    private readonly LeafletMapDisplayOptions _opts = new()
     {
         Center = new LatLng(51.5074, -0.1278),
         Zoom = 12,

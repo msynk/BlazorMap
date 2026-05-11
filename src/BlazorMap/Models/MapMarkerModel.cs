@@ -1,4 +1,4 @@
-namespace BlazorMapKit;
+namespace BlazorMap;
 
 /// <summary>Declarative marker definition for batch updates.</summary>
 public sealed class MapMarkerModel

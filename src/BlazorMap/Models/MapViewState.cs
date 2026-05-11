@@ -1,4 +1,4 @@
-namespace BlazorMapKit;
+namespace BlazorMap;
 
 /// <summary>Current map viewport after pan or zoom.</summary>
 public sealed class MapViewState

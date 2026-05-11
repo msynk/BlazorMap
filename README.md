@@ -2,7 +2,7 @@
 
 A **Blazor WebAssembly** map library with **provider-specific** Razor components (**Leaflet**, **MapLibre GL JS**, **Mapbox GL JS**, and more). Each component imports a small ES module under `_content/BlazorMap/js/` that loads the vendor CSS/JS from a CDN the first time that provider initializes, so the host app does **not** need manual `<script>` / `<link>` tags for those libraries.
 
-Geographic DTOs (`LatLng`, `LatLngBounds`, `MapDisplayOptions`, `MapLibreMapDisplayOptions`, `MapboxMapDisplayOptions`, etc.) live in the **`BlazorMapKit`** namespace so they stay easy to reuse without colliding with other map types in your app.
+All public types (map components, `LatLng`, `LatLngBounds`, `LeafletMapDisplayOptions`, `MapLibreMapDisplayOptions`, `MapboxMapDisplayOptions`, etc.) live in the single **`BlazorMap`** namespace so consuming apps only need one `@using` directive.
 
 ## Requirements
 
@@ -18,8 +18,7 @@ Add a project reference to `src/BlazorMap/BlazorMap.csproj` from your Blazor Web
 ### 2. Use a component (no vendor scripts in `index.html`)
 
 ```razor
-@using BlazorMap.Components
-@using BlazorMapKit
+@using BlazorMap
 
 <BlazorLeafletMap @ref="_map"
                   Height="420px"
@@ -29,7 +28,7 @@ Add a project reference to `src/BlazorMap/BlazorMap.csproj` from your Blazor Web
 
 @code {
     private BlazorLeafletMap? _map;
-    private readonly MapDisplayOptions _options = new()
+    private readonly LeafletMapDisplayOptions _options = new()
     {
         Center = new LatLng(51.505, -0.09),
         Zoom = 13
@@ -106,7 +105,7 @@ The demo includes Leaflet pages (markers, vectors, GeoJSON, tiles, events, enter
 
 | Path | Role |
 |------|------|
-| `src/BlazorMap/` | Razor class library: `BlazorLeafletMap`, `BlazorMapLibreMap`, `BlazorMapboxMap`, models, `wwwroot/js/` modules |
+| `src/BlazorMap/` | Razor class library: `Components/<ComponentName>/` for each map, `Models/`, `wwwroot/js/` modules |
 | `src/BlazorMap.Demo/` | Sample Blazor WebAssembly host |
 
 ## License

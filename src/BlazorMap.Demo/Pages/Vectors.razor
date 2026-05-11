@@ -27,7 +27,7 @@
     private BlazorLeafletMap? _map;
     private string _log = "Redraw loads a route, a park polygon, a circle, and a bounding box.";
 
-    private readonly MapDisplayOptions _opts = new()
+    private readonly LeafletMapDisplayOptions _opts = new()
     {
         Center = new LatLng(37.7749, -122.4194),
         Zoom = 12,

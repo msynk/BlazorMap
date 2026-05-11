@@ -1,6 +1,6 @@
-namespace BlazorMapKit;
+namespace BlazorMap;
 
-/// <summary>Initial display settings for <see cref="T:BlazorMap.Components.BlazorMapboxMap"/> (Mapbox GL JS).</summary>
+/// <summary>Initial display settings for <see cref="BlazorMapboxMap"/> (Mapbox GL JS).</summary>
 public sealed class MapboxMapDisplayOptions
 {
     public LatLng Center { get; set; } = new(51.505, -0.09);

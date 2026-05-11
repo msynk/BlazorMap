@@ -1,4 +1,4 @@
-namespace BlazorMapKit;
+namespace BlazorMap;
 
 /// <summary>Stroke and fill styling for polylines, polygons, circles, and GeoJSON.</summary>
 public sealed class VectorPathStyle

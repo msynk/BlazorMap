@@ -1,6 +1,4 @@
-using BlazorMapKit;
-
-namespace BlazorMap.Components;
+namespace BlazorMap;
 
 public partial class BlazorMapboxMap
 {
