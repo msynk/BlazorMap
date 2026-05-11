@@ -1,0 +1,119 @@
+@page "/azuremaps/tiles"
+
+<PageTitle>BlazorMap — Azure Maps styles &amp; tiles</PageTitle>
+
+<h1>Map styles and tile overlays</h1>
+
+<section class="demo-panel">
+    <p>
+        <code>BlazorAzureMapsMapOptions.Style</code> selects an Azure Maps render style.
+        All built-in styles require a <a href="https://portal.azure.com" target="_blank" rel="noopener noreferrer">subscription key</a>.
+        Available styles: <code>"road"</code>, <code>"satellite"</code>,
+        <code>"satellite_road_labels"</code>, <code>"grayscale_light"</code>,
+        <code>"grayscale_dark"</code>, <code>"night"</code>, <code>"road_shaded_relief"</code>.
+    </p>
+    <div class="demo-actions" style="margin-bottom:0.75rem;">
+        @foreach (var s in _styles)
+        {
+            <button type="button"
+                    class="demo-tile-btn @(s == _style ? "is-active" : "")"
+                    @onclick="() => SetStyle(s)">@s</button>
+        }
+    </div>
+    <div class="demo-map-wrap">
+        <BlazorAzureMapsMap @key="_style" @ref="_map" Height="380px" Options="@_options" />
+    </div>
+    <p style="font-size:0.9rem;color:#8b949e;">
+        Styles shown without a subscription key will render an empty container.
+    </p>
+</section>
+
+<section class="demo-panel">
+    <h2>XYZ tile overlay</h2>
+    <p>Layer any XYZ tile service on top of the base map via <code>AddTileOverlayAsync</code>.</p>
+    <div class="demo-actions">
+        <button type="button" @onclick="AddOverlayAsync">Add Carto overlay</button>
+        <button type="button" @onclick="RemoveOverlayAsync">Remove overlay</button>
+    </div>
+    <div class="demo-log">@_log</div>
+</section>
+
+<DemoCodeSample Title="Map style and tile overlay" Code="@_snippet" />
+
+@code {
+    private BlazorAzureMapsMap? _map;
+    private string _style = "road";
+    private string _log = "Add or remove the overlay layer.";
+
+    private static readonly string[] _styles =
+    [
+        "road", "satellite", "satellite_road_labels",
+        "grayscale_light", "grayscale_dark", "night", "road_shaded_relief",
+    ];
+
+    private BlazorAzureMapsMapOptions _options = new()
+    {
+        Center = new BlazorMapLatLng(20, 0),
+        Zoom = 2,
+        Style = "road",
+    };
+
+    private const string _snippet =
+        """
+        // Switch style by recreating the component with @key:
+        private BlazorAzureMapsMapOptions _options = new()
+        {
+            Style = "satellite_road_labels",
+            SubscriptionKey = "<your-key>",
+        };
+
+        // Add a custom XYZ tile overlay:
+        await _map.AddTileOverlayAsync(new BlazorMapTileOverlayOptions
+        {
+            Id = "carto",
+            UrlTemplate = "https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png",
+            Attribution = "&copy; OSM &copy; CARTO",
+            Opacity = 0.7,
+        });
+        """;
+
+    private void SetStyle(string style)
+    {
+        _style = style;
+        _options = new BlazorAzureMapsMapOptions
+        {
+            Center = new BlazorMapLatLng(20, 0),
+            Zoom = 2,
+            Style = style,
+        };
+    }
+
+    private async Task AddOverlayAsync()
+    {
+        if (_map is null) return;
+        try
+        {
+            await _map.AddTileOverlayAsync(new BlazorMapTileOverlayOptions
+            {
+                Id = "carto",
+                UrlTemplate = "https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png",
+                Attribution = "&copy; OSM &copy; CARTO",
+                Opacity = 0.6,
+            });
+            _log = "Carto overlay added.";
+        }
+        catch (Exception ex)
+        {
+            _log = "Overlay failed: " + ex.Message;
+        }
+        StateHasChanged();
+    }
+
+    private async Task RemoveOverlayAsync()
+    {
+        if (_map is null) return;
+        await _map.RemoveTileOverlayAsync("carto");
+        _log = "Overlay removed.";
+        StateHasChanged();
+    }
+}

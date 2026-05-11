@@ -1,0 +1,94 @@
+@page "/azuremaps"
+
+<PageTitle>BlazorMap — Azure Maps</PageTitle>
+
+<h1>Azure Maps Web SDK</h1>
+
+<section class="demo-panel">
+    <p>
+        <code>BlazorAzureMapsMap</code> targets the
+        <a href="https://learn.microsoft.com/en-us/azure/azure-maps/" target="_blank" rel="noopener noreferrer">Azure Maps Web SDK v3</a>.
+        The SDK is loaded from the Microsoft CDN on first use — no npm install required.
+        A <strong>subscription key</strong> is required for tile rendering.
+        Obtain a free key at <a href="https://portal.azure.com" target="_blank" rel="noopener noreferrer">portal.azure.com</a>
+        (Azure Maps account → Authentication → Primary key).
+        Without a key the map container initialises but tiles will not appear.
+    </p>
+    <div class="demo-actions" style="margin-bottom:0.75rem;">
+        <label for="az-key" style="font-size:0.875rem;">Subscription key (optional for preview):</label>
+        <input id="az-key" type="text" placeholder="Paste your Azure Maps key…" @bind="_subscriptionKey"
+               style="font-size:0.8rem;padding:3px 6px;border:1px solid #444;border-radius:3px;background:#161b22;color:#c9d1d9;width:340px;" />
+    </div>
+    <div class="demo-map-wrap">
+        <BlazorAzureMapsMap @ref="_map"
+                            Height="300px"
+                            Options="@BuildOptions()"
+                            OnMapReady="OnMapReadyAsync"
+                            OnViewChanged="OnViewChanged" />
+    </div>
+    <p class="demo-muted">@_viewSummary</p>
+</section>
+
+<section class="demo-panel">
+    <h2>Try next</h2>
+    <ul>
+        <li><NavLink href="/azuremaps/markers">Markers and popups</NavLink></li>
+        <li><NavLink href="/azuremaps/vectors">Polylines, polygons, circles, rectangles</NavLink></li>
+        <li><NavLink href="/azuremaps/geojson">GeoJSON layer</NavLink></li>
+        <li><NavLink href="/azuremaps/tiles">Styles and tile overlays</NavLink></li>
+        <li><NavLink href="/azuremaps/events">Events and layout</NavLink></li>
+        <li><NavLink href="/azuremaps/enterprise">Enterprise-style options</NavLink></li>
+    </ul>
+</section>
+
+<DemoCodeSample Title="Minimal Azure Maps component" Code="@_snippet" />
+
+@code {
+    private BlazorAzureMapsMap? _map;
+    private string _viewSummary = "Pan or zoom to see view state.";
+    private string _subscriptionKey = string.Empty;
+
+    private BlazorAzureMapsMapOptions BuildOptions() => new()
+    {
+        Center = new BlazorMapLatLng(51.5074, -0.1278),
+        Zoom = 5,
+        Style = "road",
+        SubscriptionKey = string.IsNullOrWhiteSpace(_subscriptionKey) ? null : _subscriptionKey,
+    };
+
+    private const string _snippet =
+        """
+        <BlazorAzureMapsMap Height="300px"
+                            Options="@_options"
+                            OnViewChanged="OnViewChanged" />
+
+        @code {
+            private readonly BlazorAzureMapsMapOptions _options = new()
+            {
+                Center = new BlazorMapLatLng(51.5074, -0.1278),
+                Zoom = 5,
+                Style = "road",
+                SubscriptionKey = "<your-azure-maps-key>",
+            };
+        }
+        """;
+
+    private async Task OnMapReadyAsync()
+    {
+        if (_map is null) return;
+        await _map.AddMarkerAsync(new BlazorMapMarkerModel
+        {
+            Id = "london",
+            Position = new BlazorMapLatLng(51.5074, -0.1278),
+            Title = "London",
+            PopupHtml = "<strong>Azure Maps Web SDK</strong><br/>Subscription key required for tiles.",
+        });
+    }
+
+    private Task OnViewChanged(BlazorMapViewState state)
+    {
+        _viewSummary = $"Center {state.Center.Latitude:F4}, {state.Center.Longitude:F4} · zoom {state.Zoom:F1}";
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+}

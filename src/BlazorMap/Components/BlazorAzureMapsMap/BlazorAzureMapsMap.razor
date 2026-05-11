@@ -1,0 +1,11 @@
+@namespace BlazorMap
+@inherits BlazorInteractiveMapBase<BlazorAzureMapsMapOptions>
+
+<div class="blazor-map-root @CssClass" style="width:@Width;height:@Height">
+    <div @ref="_mapElement"
+         class="blazor-map-canvas"
+         tabindex="0"
+         role="application"
+         aria-label="Interactive map (Azure Maps). Use arrow keys to pan when focused; +/- to zoom."></div>
+    @ChildContent
+</div>

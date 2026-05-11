@@ -9,6 +9,7 @@
         : path.StartsWith("/mapbox", StringComparison.Ordinal) ? "mapbox"
         : path.StartsWith("/openlayers", StringComparison.Ordinal) ? "openlayers"
         : path.StartsWith("/arcgis", StringComparison.Ordinal) ? "arcgis"
+        : path.StartsWith("/azuremaps", StringComparison.Ordinal) ? "azuremaps"
         : null;
 }
 
@@ -65,6 +66,16 @@
             <NavLink class="demo-subnav-link" href="/arcgis/tiles">Basemaps</NavLink>
             <NavLink class="demo-subnav-link" href="/arcgis/events">Events</NavLink>
             <NavLink class="demo-subnav-link" href="/arcgis/enterprise">Enterprise</NavLink>
+        }
+        else if (group == "azuremaps")
+        {
+            <NavLink class="demo-subnav-link" href="/azuremaps" Match="NavLinkMatch.All">Overview</NavLink>
+            <NavLink class="demo-subnav-link" href="/azuremaps/markers">Markers</NavLink>
+            <NavLink class="demo-subnav-link" href="/azuremaps/vectors">Vectors</NavLink>
+            <NavLink class="demo-subnav-link" href="/azuremaps/geojson">GeoJSON</NavLink>
+            <NavLink class="demo-subnav-link" href="/azuremaps/tiles">Styles</NavLink>
+            <NavLink class="demo-subnav-link" href="/azuremaps/events">Events</NavLink>
+            <NavLink class="demo-subnav-link" href="/azuremaps/enterprise">Enterprise</NavLink>
         }
     </nav>
 }

@@ -1,0 +1,88 @@
+@page "/azuremaps/events"
+
+<PageTitle>BlazorMap — Azure Maps events</PageTitle>
+
+<h1>Map and view events</h1>
+
+<section class="demo-panel">
+    <p>
+        <code>OnMapClick</code> delivers the geographic point under the cursor.
+        <code>OnViewChanged</code> fires after every pan or zoom with center, zoom level, and
+        axis-aligned bounds. Call <code>InvalidateSizeAsync</code> after the container resizes
+        so Azure Maps recomputes its layout.
+    </p>
+    <p>
+        <label style="display:inline-flex;align-items:center;gap:0.5rem;">
+            <input type="checkbox" @bind="_tall" />
+            Toggle tall map (then "Refresh layout")
+        </label>
+    </p>
+    <div class="demo-map-wrap">
+        <BlazorAzureMapsMap @ref="_map"
+                            Height="@MapHeight"
+                            Options="@_opts"
+                            OnMapClick="HandleMapClick"
+                            OnViewChanged="HandleViewChanged" />
+    </div>
+    <div class="demo-actions">
+        <button type="button" @onclick="FlyToTokyoAsync">Fly to Tokyo</button>
+        <button type="button" @onclick="InvalidateAsync">Refresh layout</button>
+    </div>
+    <div class="demo-log">@_log</div>
+</section>
+
+<DemoCodeSample Title="Events and layout" Code="@_snippet" />
+
+@code {
+    private BlazorAzureMapsMap? _map;
+    private bool _tall;
+    private string _log = "Pan/zoom or click the map.";
+
+    private string MapHeight => _tall ? "460px" : "280px";
+
+    private readonly BlazorAzureMapsMapOptions _opts = new()
+    {
+        Center = new BlazorMapLatLng(35.6762, 139.6503),
+        Zoom = 11,
+    };
+
+    private const string _snippet =
+        """
+        <BlazorAzureMapsMap @ref="_map"
+                            OnMapClick="HandleMapClick"
+                            OnViewChanged="HandleViewChanged" />
+
+        private async Task ResizeAfterContainerChangeAsync()
+        {
+            await _map!.InvalidateSizeAsync();
+        }
+        """;
+
+    private Task HandleMapClick(BlazorMapLatLng p)
+    {
+        _log = $"Map click → {p.Lat:F5}, {p.Lng:F5}";
+        return Task.CompletedTask;
+    }
+
+    private Task HandleViewChanged(BlazorMapViewState v)
+    {
+        _log =
+            $"View: zoom {v.Zoom:F1}, center {v.Center.Lat:F4},{v.Center.Lng:F4}, " +
+            $"bounds SW {v.Bounds.SouthWest.Lat:F4},{v.Bounds.SouthWest.Lng:F4} " +
+            $"NE {v.Bounds.NorthEast.Lat:F4},{v.Bounds.NorthEast.Lng:F4}";
+        return Task.CompletedTask;
+    }
+
+    private async Task FlyToTokyoAsync()
+    {
+        if (_map is null) return;
+        await _map.FlyToAsync(new BlazorMapLatLng(35.6762, 139.6503), 12);
+    }
+
+    private async Task InvalidateAsync()
+    {
+        if (_map is null) return;
+        await _map.InvalidateSizeAsync();
+        _log = "Called InvalidateSizeAsync.";
+    }
+}
