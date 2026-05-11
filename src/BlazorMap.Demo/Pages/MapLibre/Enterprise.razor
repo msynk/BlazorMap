@@ -1,69 +1,75 @@
-@page "/enterprise"
+@page "/maplibre/enterprise"
 
-<PageTitle>BlazorMap — Enterprise-style features</PageTitle>
+<PageTitle>BlazorMap — MapLibre interactions</PageTitle>
 
-<h1>What commercial suites emphasize</h1>
+<h1>Interaction toggles (MapLibre)</h1>
 
 <section class="demo-panel">
     <p>
-        <strong>Telerik</strong> maps stress layered content (tile, marker, shape, bubble), per-layer opacity,
-        min/max zoom, z-order, and tooltips. <strong>Syncfusion</strong> adds zoom modes (wheel, pinch, double-click),
-        pan, selection, highlight, marker clustering, and tooltips. <strong>DevExpress</strong> focuses on provider keys,
-        markers with tooltips, driving/walking routes, and auto-fit to markers. Below is a subset implemented here without vendor lock-in.
+        <code>BlazorMapLibreMapOptions</code> exposes WebGL navigation toggles (scroll zoom, drag pan, box zoom, keyboard, max bounds).
+        There is no built-in “scale line” option on this component yet (unlike Leaflet’s <code>ShowScaleControl</code>); use the default navigation control or extend the JS bridge if you need one.
     </p>
-    <ul>
-        <li>Interaction toggles (wheel, double-click, box zoom, drag, keyboard)</li>
-        <li>Scale bar and optional max bounds (pan limit)</li>
-        <li>Marker tooltips vs popups, z-order, <code>FitBoundsToMarkersAsync</code> (auto-adjust)</li>
-        <li>Read viewport via <code>GetViewAsync</code>; double-click event</li>
-        <li>Optional XYZ tile overlay (e.g. labels)</li>
-    </ul>
-</section>
-
-<section class="demo-panel">
-    <h2>Live sample</h2>
     <p>
         <label><input type="checkbox" @bind="_wheel" /> Scroll wheel zoom</label>
         &nbsp;
-        <label><input type="checkbox" @bind="_drag" /> Dragging</label>
+        <label><input type="checkbox" @bind="_dragPan" /> Drag pan</label>
         &nbsp;
-        <label><input type="checkbox" @bind="_scale" /> Scale control</label>
+        <label><input type="checkbox" @bind="_navControl" /> Navigation control</label>
         &nbsp;
         <label><input type="checkbox" @bind="_maxBounds" /> Limit pan to Greater London</label>
         &nbsp;
-        <label><input type="checkbox" @bind="_overlay" @bind:after="ToggleOverlayAsync" /> Stamen toner labels overlay</label>
+        <label><input type="checkbox" @bind="_overlay" @bind:after="ToggleOverlayAsync" /> Raster labels overlay</label>
     </p>
     <div class="demo-map-wrap">
-        <BlazorLeafletMap @ref="_map"
-                   Height="380px"
-                   Options="@BuildOptions()"
-                   OnMapDoubleClick="HandleDbl"
-                   OnViewChanged="HandleView" />
+        <BlazorMapLibreMap @ref="_map"
+                           Height="380px"
+                           Options="@BuildOptions()"
+                           OnMapDoubleClick="HandleDbl"
+                           OnViewChanged="HandleView" />
     </div>
     <div class="demo-actions">
-        <button type="button" @onclick="AddClusterLikePinsAsync">Add three pins + fit bounds</button>
+        <button type="button" @onclick="AddPinsAsync">Add three pins + fit bounds</button>
         <button type="button" @onclick="ReadViewAsync">Log viewport (GetViewAsync)</button>
     </div>
     <div class="demo-log">@_log</div>
 </section>
 
+<DemoCodeSample Title="MapLibre options" Code="@_snippet" />
+
 @code {
-    private BlazorLeafletMap? _map;
+    private BlazorMapLibreMap? _map;
     private string _log = "Toggle options or use the buttons.";
     private bool _wheel = true;
-    private bool _drag = true;
-    private bool _scale = true;
+    private bool _dragPan = true;
+    private bool _navControl = true;
     private bool _maxBounds;
     private bool _overlay;
 
-    private BlazorLeafletMapOptions BuildOptions() =>
+    private const string _snippet =
+        """
+        var opts = new BlazorMapLibreMapOptions
+        {
+            Center = new BlazorMapLatLng(51.5074, -0.1278),
+            Zoom = 11,
+            ScrollWheelZoom = true,
+            DragPan = true,
+            ShowNavigationControl = true,
+            MaxBounds = new BlazorMapLatLngBounds(sw, ne),
+            StyleUrl = "https://demotiles.maplibre.org/style.json",
+        };
+
+        await _map.AddTileOverlayAsync(new BlazorMapTileOverlayOptions { ... });
+        await _map.FitBoundsToMarkersAsync(56);
+        """;
+
+    private BlazorMapLibreMapOptions BuildOptions() =>
         new()
         {
             Center = new BlazorMapLatLng(51.5074, -0.1278),
             Zoom = 11,
-            ShowScaleControl = _scale,
             ScrollWheelZoom = _wheel,
-            Dragging = _drag,
+            DragPan = _dragPan,
+            ShowNavigationControl = _navControl,
             MaxBounds = _maxBounds
                 ? new BlazorMapLatLngBounds(new BlazorMapLatLng(51.25, -0.55), new BlazorMapLatLng(51.75, 0.35))
                 : null,
@@ -106,13 +112,13 @@
 
     private Task HandleDbl(BlazorMapLatLng p)
     {
-        _log = $"Double-click at {p.Lat:F4}, {p.Lng:F4} (Leaflet still zooms unless you disable DoubleClickZoom).";
+        _log = $"Double-click at {p.Lat:F4}, {p.Lng:F4}.";
         return Task.CompletedTask;
     }
 
     private Task HandleView(BlazorMapViewState _) => Task.CompletedTask;
 
-    private async Task AddClusterLikePinsAsync()
+    private async Task AddPinsAsync()
     {
         if (_map is null) return;
         await _map.ClearMarkersAsync();
@@ -121,7 +127,7 @@
             {
                 Id = "a",
                 Position = new BlazorMapLatLng(51.52, -0.10),
-                TooltipHtml = "<b>West End</b> (tooltip)",
+                TooltipHtml = "<b>West End</b>",
                 PopupHtml = "Popup A",
                 ZIndexOffset = 10,
             });
@@ -130,7 +136,7 @@
             {
                 Id = "b",
                 Position = new BlazorMapLatLng(51.50, -0.08),
-                TooltipHtml = "City (tooltip)",
+                TooltipHtml = "City",
                 PopupHtml = "Popup B",
             });
         await _map.AddMarkerAsync(
@@ -138,7 +144,7 @@
             {
                 Id = "c",
                 Position = new BlazorMapLatLng(51.48, -0.06),
-                TooltipHtml = "South bank (tooltip)",
+                TooltipHtml = "South bank",
                 PopupHtml = "Popup C",
             });
         await _map.FitBoundsToMarkersAsync(56);

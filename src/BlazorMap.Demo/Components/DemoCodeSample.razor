@@ -1,0 +1,13 @@
+<section class="demo-code-wrap">
+    @if (!string.IsNullOrWhiteSpace(Title))
+    {
+        <h3 class="demo-code-heading">@Title</h3>
+    }
+    <pre class="demo-code-block"><code>@Code</code></pre>
+</section>
+
+@code {
+    [Parameter] public string? Title { get; set; }
+
+    [Parameter, EditorRequired] public string Code { get; set; } = "";
+}

@@ -1,6 +1,6 @@
-@page "/events"
+@page "/leaflet/events"
 
-<PageTitle>BlazorMap — Events</PageTitle>
+<PageTitle>BlazorMap — Leaflet events</PageTitle>
 
 <h1>Map and view events</h1>
 
@@ -18,10 +18,10 @@
     </p>
     <div class="demo-map-wrap">
         <BlazorLeafletMap @ref="_map"
-                   Height="@MapHeight"
-                   Options="@_opts"
-                   OnMapClick="HandleMapClick"
-                   OnViewChanged="HandleViewChanged" />
+                          Height="@MapHeight"
+                          Options="@_opts"
+                          OnMapClick="HandleMapClick"
+                          OnViewChanged="HandleViewChanged" />
     </div>
     <div class="demo-actions">
         <button type="button" @onclick="FlyToTokyoAsync">Fly to Tokyo</button>
@@ -29,6 +29,8 @@
     </div>
     <div class="demo-log">@_log</div>
 </section>
+
+<DemoCodeSample Title="Events and layout" Code="@_snippet" />
 
 @code {
     private BlazorLeafletMap? _map;
@@ -42,6 +44,22 @@
         Center = new BlazorMapLatLng(35.6762, 139.6503),
         Zoom = 11,
     };
+
+    private const string _snippet =
+        """
+        <BlazorLeafletMap @ref="_map"
+                          OnMapClick="HandleMapClick"
+                          OnViewChanged="HandleViewChanged" />
+
+        private Task HandleMapClick(BlazorMapLatLng p) => Task.CompletedTask;
+
+        private Task HandleViewChanged(BlazorMapViewState v) => Task.CompletedTask;
+
+        private async Task ResizeAfterContainerChangeAsync()
+        {
+            await _map!.InvalidateSizeAsync();
+        }
+        """;
 
     private Task HandleMapClick(BlazorMapLatLng p)
     {

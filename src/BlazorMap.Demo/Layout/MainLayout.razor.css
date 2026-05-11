@@ -9,12 +9,19 @@
 
 .demo-header {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 1rem 1.5rem;
-  padding: 0.75rem 1.25rem;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.65rem 1.25rem 0.75rem;
   border-bottom: 1px solid #30363d;
   background: #161b22;
+}
+
+.demo-header-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1.25rem;
+  justify-content: space-between;
 }
 
 .demo-nav {
@@ -22,6 +29,11 @@
   flex-wrap: wrap;
   gap: 0.35rem 0.5rem;
   align-items: center;
+}
+
+.demo-nav-primary {
+  flex: 1;
+  justify-content: flex-end;
 }
 
 /* NavLink renders a child <a>; isolated CSS must pierce with ::deep */
@@ -167,4 +179,33 @@
   border-radius: 8px;
   overflow: auto;
   font-size: 0.85rem;
+}
+
+.demo-main ::deep .demo-code-wrap {
+  margin-top: 1.25rem;
+}
+
+.demo-main ::deep .demo-code-heading {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 0 0 0.4rem;
+  color: #c9d1d9;
+}
+
+.demo-main ::deep .demo-code-block {
+  margin: 0;
+  padding: 0.85rem 1rem;
+  background: #0d1117;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  overflow: auto;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  max-height: 420px;
+}
+
+.demo-main ::deep .demo-code-block code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  color: #e6edf3;
+  white-space: pre;
 }

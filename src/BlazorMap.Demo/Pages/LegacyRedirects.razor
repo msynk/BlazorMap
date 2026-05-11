@@ -1,0 +1,25 @@
+@page "/markers"
+@page "/vectors"
+@page "/geojson"
+@page "/tiles"
+@page "/events"
+@page "/enterprise"
+@inject NavigationManager Nav
+
+@code {
+    protected override void OnInitialized()
+    {
+        var p = new Uri(Nav.Uri).AbsolutePath.TrimEnd('/');
+        var target = p switch
+        {
+            "/markers" => "/leaflet/markers",
+            "/vectors" => "/leaflet/vectors",
+            "/geojson" => "/leaflet/geojson",
+            "/tiles" => "/leaflet/tiles",
+            "/events" => "/leaflet/events",
+            "/enterprise" => "/leaflet/enterprise",
+            _ => "/leaflet",
+        };
+        Nav.NavigateTo(target, replace: true);
+    }
+}

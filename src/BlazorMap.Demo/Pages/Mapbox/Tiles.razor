@@ -1,0 +1,75 @@
+@page "/mapbox/tiles"
+@inject IConfiguration Configuration
+
+<PageTitle>BlazorMap — Mapbox styles</PageTitle>
+
+<h1>Switching Mapbox styles</h1>
+
+<section class="demo-panel">
+    @if (string.IsNullOrWhiteSpace(_token))
+    {
+        <p class="demo-warn">Configure <code>Mapbox:AccessToken</code> to switch hosted Mapbox styles.</p>
+    }
+    <p>
+        Use <code>BlazorMapboxMapOptions.StyleUrl</code> with a <code>mapbox://styles/...</code> URL or an HTTPS style JSON.
+        Recreate the map with <code>@@key</code> when replacing the entire style.
+    </p>
+    <div class="demo-actions" style="margin-bottom: 0.75rem;">
+        <button type="button" class="demo-tile-btn @Active("streets")" @onclick='() => SetStyle("streets")'>Streets</button>
+        <button type="button" class="demo-tile-btn @Active("dark")" @onclick='() => SetStyle("dark")'>Dark</button>
+        <button type="button" class="demo-tile-btn @Active("satellite")" @onclick='() => SetStyle("satellite")'>Satellite</button>
+    </div>
+    <div class="demo-map-wrap">
+        <BlazorMapboxMap @key="_styleKey" Height="380px" Options="@_options" />
+    </div>
+</section>
+
+<DemoCodeSample Title="StyleUrl (Mapbox)" Code="@_snippet" />
+
+@code {
+    private string _token = "";
+    private string _styleKey = "streets";
+
+    private BlazorMapboxMapOptions _options = new();
+
+    private string Active(string id) => _styleKey == id ? "is-active" : string.Empty;
+
+    private const string _snippet =
+        """
+        <BlazorMapboxMap @key="_styleKey" Options="@_options" />
+
+        _options = new BlazorMapboxMapOptions
+        {
+            AccessToken = token,
+            StyleUrl = "mapbox://styles/mapbox/satellite-streets-v12",
+            Center = new BlazorMapLatLng(51.505, -0.09),
+            Zoom = 13,
+        };
+        """;
+
+    protected override void OnInitialized()
+    {
+        _token = Configuration["Mapbox:AccessToken"] ?? "";
+        _options = Build("streets");
+    }
+
+    private void SetStyle(string id)
+    {
+        _styleKey = id;
+        _options = Build(id);
+    }
+
+    private BlazorMapboxMapOptions Build(string id) =>
+        new()
+        {
+            AccessToken = _token,
+            Center = new BlazorMapLatLng(51.505, -0.09),
+            Zoom = id == "satellite" ? 11 : 13,
+            StyleUrl = id switch
+            {
+                "dark" => "mapbox://styles/mapbox/dark-v11",
+                "satellite" => "mapbox://styles/mapbox/satellite-streets-v12",
+                _ => "mapbox://styles/mapbox/streets-v12",
+            },
+        };
+}

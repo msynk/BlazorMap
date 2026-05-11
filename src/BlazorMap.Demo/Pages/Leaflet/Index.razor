@@ -1,0 +1,51 @@
+@page "/leaflet"
+
+<PageTitle>BlazorMap — Leaflet</PageTitle>
+
+<h1>Leaflet + OpenStreetMap</h1>
+
+<section class="demo-panel">
+    <p>
+        <code>BlazorLeafletMap</code> is the default-friendly stack: raster tiles (including custom XYZ URLs),
+        scale control, marker tooltips, vector overlays, and GeoJSON — without a Mapbox account.
+        Use the sample links in the bar above or start from the minimal map below.
+    </p>
+    <div class="demo-map-wrap">
+        <BlazorLeafletMap Height="280px" Options="@_opts" />
+    </div>
+</section>
+
+<section class="demo-panel">
+    <h2>Try next</h2>
+    <ul>
+        <li><NavLink href="/leaflet/markers">Markers and popups</NavLink></li>
+        <li><NavLink href="/leaflet/vectors">Vectors (polyline, polygon, circle, rectangle)</NavLink></li>
+        <li><NavLink href="/leaflet/geojson">GeoJSON layer</NavLink></li>
+        <li><NavLink href="/leaflet/tiles">Custom tile URLs</NavLink></li>
+        <li><NavLink href="/leaflet/events">Map clicks and view state</NavLink></li>
+        <li><NavLink href="/leaflet/enterprise">Interaction toggles and overlays</NavLink></li>
+    </ul>
+</section>
+
+<DemoCodeSample Title="Minimal Leaflet map (Razor)" Code="@_snippet" />
+
+@code {
+    private readonly BlazorLeafletMapOptions _opts = new()
+    {
+        Center = new BlazorMapLatLng(51.5074, -0.1278),
+        Zoom = 12,
+    };
+
+    private const string _snippet =
+        """
+        <BlazorLeafletMap Height="280px" Options="@_opts" />
+
+        @code {
+            private readonly BlazorLeafletMapOptions _opts = new()
+            {
+                Center = new BlazorMapLatLng(51.5074, -0.1278),
+                Zoom = 12,
+            };
+        }
+        """;
+}

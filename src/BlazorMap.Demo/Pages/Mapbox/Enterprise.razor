@@ -1,0 +1,171 @@
+@page "/mapbox/enterprise"
+@inject IConfiguration Configuration
+
+<PageTitle>BlazorMap — Mapbox interactions</PageTitle>
+
+<h1>Interaction toggles (Mapbox)</h1>
+
+<section class="demo-panel">
+    @if (string.IsNullOrWhiteSpace(_token))
+    {
+        <p class="demo-warn">Configure <code>Mapbox:AccessToken</code> for this sample.</p>
+    }
+    <p>
+        Tune the same interaction flags as on MapLibre. Marker tooltips, <code>FitBoundsToMarkersAsync</code>, and optional raster overlays work the same across GL providers.
+    </p>
+    <p>
+        <label><input type="checkbox" @bind="_wheel" /> Scroll wheel zoom</label>
+        &nbsp;
+        <label><input type="checkbox" @bind="_dragPan" /> Drag pan</label>
+        &nbsp;
+        <label><input type="checkbox" @bind="_navControl" /> Navigation control</label>
+        &nbsp;
+        <label><input type="checkbox" @bind="_maxBounds" /> Limit pan to Greater London</label>
+        &nbsp;
+        <label><input type="checkbox" @bind="_overlay" @bind:after="ToggleOverlayAsync" /> Raster labels overlay</label>
+    </p>
+    <div class="demo-map-wrap">
+        <BlazorMapboxMap @ref="_map"
+                         Height="380px"
+                         Options="@BuildOptions()"
+                         OnMapDoubleClick="HandleDbl"
+                         OnViewChanged="HandleView" />
+    </div>
+    <div class="demo-actions">
+        <button type="button" @onclick="AddPinsAsync">Add three pins + fit bounds</button>
+        <button type="button" @onclick="ReadViewAsync">Log viewport (GetViewAsync)</button>
+    </div>
+    <div class="demo-log">@_log</div>
+</section>
+
+<DemoCodeSample Title="Mapbox options" Code="@_snippet" />
+
+@code {
+    private BlazorMapboxMap? _map;
+    private string _token = "";
+    private string _log = "Toggle options or use the buttons.";
+    private bool _wheel = true;
+    private bool _dragPan = true;
+    private bool _navControl = true;
+    private bool _maxBounds;
+    private bool _overlay;
+
+    private const string _snippet =
+        """
+        var opts = new BlazorMapboxMapOptions
+        {
+            AccessToken = token,
+            StyleUrl = "mapbox://styles/mapbox/streets-v12",
+            ScrollWheelZoom = true,
+            DragPan = true,
+            ShowNavigationControl = true,
+            MaxBounds = new BlazorMapLatLngBounds(sw, ne),
+        };
+        """;
+
+    protected override void OnInitialized()
+    {
+        _token = Configuration["Mapbox:AccessToken"] ?? "";
+    }
+
+    private BlazorMapboxMapOptions BuildOptions() =>
+        new()
+        {
+            AccessToken = _token,
+            Center = new BlazorMapLatLng(51.5074, -0.1278),
+            Zoom = 11,
+            ScrollWheelZoom = _wheel,
+            DragPan = _dragPan,
+            ShowNavigationControl = _navControl,
+            MaxBounds = _maxBounds
+                ? new BlazorMapLatLngBounds(new BlazorMapLatLng(51.25, -0.55), new BlazorMapLatLng(51.75, 0.35))
+                : null,
+        };
+
+    private async Task ToggleOverlayAsync()
+    {
+        if (_map is null) return;
+        if (_overlay)
+        {
+            try
+            {
+                await _map.AddTileOverlayAsync(
+                    new BlazorMapTileOverlayOptions
+                    {
+                        Id = "labels",
+                        UrlTemplate = "https://stamen-tiles.a.ssl.fastly.net/toner-labels/{z}/{x}/{y}.png",
+                        Attribution =
+                            @"Map tiles by Stamen Design, under CC BY 3.0. Data by OpenStreetMap.",
+                        Opacity = 0.85,
+                        ZIndex = 400,
+                        MaxZoom = 20,
+                    });
+                _log = "Overlay added (may fail if the tile host blocks your origin).";
+            }
+            catch (Exception ex)
+            {
+                _log = "Overlay failed: " + ex.Message;
+                _overlay = false;
+            }
+        }
+        else
+        {
+            await _map.RemoveTileOverlayAsync("labels");
+            _log = "Overlay removed.";
+        }
+
+        StateHasChanged();
+    }
+
+    private Task HandleDbl(BlazorMapLatLng p)
+    {
+        _log = $"Double-click at {p.Lat:F4}, {p.Lng:F4}.";
+        return Task.CompletedTask;
+    }
+
+    private Task HandleView(BlazorMapViewState _) => Task.CompletedTask;
+
+    private async Task AddPinsAsync()
+    {
+        if (_map is null || string.IsNullOrWhiteSpace(_token)) return;
+        await _map.ClearMarkersAsync();
+        await _map.AddMarkerAsync(
+            new BlazorMapMarkerModel
+            {
+                Id = "a",
+                Position = new BlazorMapLatLng(51.52, -0.10),
+                TooltipHtml = "<b>West End</b>",
+                PopupHtml = "Popup A",
+                ZIndexOffset = 10,
+            });
+        await _map.AddMarkerAsync(
+            new BlazorMapMarkerModel
+            {
+                Id = "b",
+                Position = new BlazorMapLatLng(51.50, -0.08),
+                TooltipHtml = "City",
+                PopupHtml = "Popup B",
+            });
+        await _map.AddMarkerAsync(
+            new BlazorMapMarkerModel
+            {
+                Id = "c",
+                Position = new BlazorMapLatLng(51.48, -0.06),
+                TooltipHtml = "South bank",
+                PopupHtml = "Popup C",
+            });
+        await _map.FitBoundsToMarkersAsync(56);
+        _log = "Three markers; view fitted with FitBoundsToMarkersAsync.";
+        StateHasChanged();
+    }
+
+    private async Task ReadViewAsync()
+    {
+        if (_map is null) return;
+        var v = await _map.GetViewAsync();
+        _log =
+            $"GetViewAsync → zoom {v.Zoom:F2}, center {v.Center.Lat:F4},{v.Center.Lng:F4}, " +
+            $"bounds NE {v.Bounds.NorthEast.Lat:F4},{v.Bounds.NorthEast.Lng:F4}";
+        StateHasChanged();
+    }
+}

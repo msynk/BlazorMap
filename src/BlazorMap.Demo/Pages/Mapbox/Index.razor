@@ -3,8 +3,9 @@
 
 <PageTitle>BlazorMap — Mapbox GL</PageTitle>
 
+<h1>Mapbox GL</h1>
+
 <section class="demo-panel">
-    <h1>Mapbox GL</h1>
     <p>
         <code>BlazorMapboxMap</code> loads Mapbox GL JS and CSS from the Mapbox CDN when the component first initializes.
         Set your token in <code>wwwroot/appsettings.json</code> under <code>Mapbox:AccessToken</code> (or user secrets / CI variables that flow into that file at build time).
@@ -32,11 +33,48 @@
     <p class="demo-muted">@_viewSummary</p>
 </section>
 
+<section class="demo-panel">
+    <h2>Try next</h2>
+    <ul>
+        <li><NavLink href="/mapbox/markers">Markers</NavLink></li>
+        <li><NavLink href="/mapbox/vectors">Vectors</NavLink></li>
+        <li><NavLink href="/mapbox/geojson">GeoJSON</NavLink></li>
+        <li><NavLink href="/mapbox/tiles">Map styles (StyleUrl)</NavLink></li>
+        <li><NavLink href="/mapbox/events">Events and layout</NavLink></li>
+        <li><NavLink href="/mapbox/enterprise">Interaction toggles</NavLink></li>
+    </ul>
+</section>
+
+<DemoCodeSample Title="Minimal Mapbox map + token" Code="@_snippet" />
+
 @code {
     private BlazorMapboxMap? _map;
     private string _token = "";
     private BlazorMapboxMapOptions _options = new();
     private string _viewSummary = "Pan or zoom to see view state.";
+
+    private const string _snippet =
+        """
+        @inject IConfiguration Configuration
+
+        <BlazorMapboxMap Options="@_options" OnViewChanged="OnViewChanged" />
+
+        @code {
+            private BlazorMapboxMapOptions _options = new();
+
+            protected override void OnInitialized()
+            {
+                var token = Configuration["Mapbox:AccessToken"] ?? "";
+                _options = new BlazorMapboxMapOptions
+                {
+                    AccessToken = token,
+                    Center = new BlazorMapLatLng(51.5074, -0.1278),
+                    Zoom = 12,
+                    StyleUrl = "mapbox://styles/mapbox/streets-v12",
+                };
+            }
+        }
+        """;
 
     protected override void OnInitialized()
     {

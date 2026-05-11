@@ -7,29 +7,36 @@
 <section class="demo-panel">
     <p>
         This solution ships a reusable <strong>BlazorMap</strong> Razor Class Library with provider-specific components
-        (for example <code>BlazorLeafletMap</code>, <code>BlazorMapLibreMap</code>, and <code>BlazorMapboxMap</code>), each loading its vendor scripts from a CDN on first use.
+        (<code>BlazorLeafletMap</code>, <code>BlazorMapLibreMap</code>, and <code>BlazorMapboxMap</code>), each loading its vendor scripts from a CDN on first use.
         Components and geographic DTOs share the single <code>BlazorMap</code> namespace, so consuming apps only need <code>@("@using BlazorMap")</code>.
-        The typed .NET API covers markers, vector shapes, GeoJSON, custom tiles, and map events where the underlying engine supports them.
+        The typed .NET API covers markers, vector shapes, GeoJSON, custom tiles or styles, and map events where the underlying engine supports them.
     </p>
     <p>
-        Use the navigation above for focused samples. This demo is a standalone Blazor WebAssembly app,
-        so map interop runs entirely in the browser.
+        Pick a provider in the top bar; sample pages for that engine appear on the second row. Each sample includes a <strong>code</strong> section at the bottom
+        showing the usual Razor and API usage. This demo is a standalone Blazor WebAssembly app, so map interop runs entirely in the browser.
     </p>
 </section>
 
 <section class="demo-panel">
-    <h2>Quick map</h2>
+    <h2>Quick map (Leaflet)</h2>
     <p>London, default OpenStreetMap tiles.</p>
     <div class="demo-map-wrap">
         <BlazorLeafletMap Height="280px" Options="@_opts" />
     </div>
+    <p>
+        <NavLink href="/leaflet">Leaflet samples</NavLink>
+        ·
+        <NavLink href="/maplibre">MapLibre GL samples</NavLink>
+        ·
+        <NavLink href="/mapbox">Mapbox GL samples</NavLink>
+    </p>
 </section>
 
 <section class="demo-panel">
     <h2>Mapbox GL</h2>
     <p>
-        The <code>BlazorMapboxMap</code> component uses Mapbox GL JS (not Leaflet). Open the
-        <NavLink href="/mapbox">Mapbox demo</NavLink> and set <code>Mapbox:AccessToken</code> in
+        <code>BlazorMapboxMap</code> uses Mapbox GL JS. Open the
+        <NavLink href="/mapbox">Mapbox demos</NavLink> and set <code>Mapbox:AccessToken</code> in
         <code>wwwroot/appsettings.json</code> to try it.
     </p>
 </section>
@@ -38,7 +45,7 @@
     <h2>MapLibre GL (free / open source)</h2>
     <p>
         <code>BlazorMapLibreMap</code> is a good choice when you want a WebGL slippy map without a Mapbox account.
-        See the <NavLink href="/maplibre">MapLibre demo</NavLink> (default style works out of the box).
+        See the <NavLink href="/maplibre">MapLibre demos</NavLink> (default style works out of the box).
     </p>
 </section>
 
@@ -58,7 +65,7 @@
         <li>
             <strong>Telerik / Syncfusion / DevExpress</strong> — paid suites: layered tiles and vectors, rich zoom and
             pan modes, tooltips, marker clustering (Syncfusion), selection/highlight, scale and navigation UI, and
-            (where providers allow) routing plus auto-fit to markers. See the <NavLink href="/enterprise">Enterprise</NavLink>
+            (where providers allow) routing plus auto-fit to markers. See the <NavLink href="/leaflet/enterprise">Leaflet enterprise-style</NavLink>
             demo for how this library mirrors a pragmatic subset without a subscription.
         </li>
     </ul>

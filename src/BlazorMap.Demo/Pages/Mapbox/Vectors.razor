@@ -1,20 +1,22 @@
-@page "/vectors"
+@page "/mapbox/vectors"
+@inject IConfiguration Configuration
 
-<PageTitle>BlazorMap — Vectors</PageTitle>
+<PageTitle>BlazorMap — Mapbox vectors</PageTitle>
 
-<h1>Polylines, polygons, circles, rectangles</h1>
+<h1>Vectors on Mapbox GL</h1>
 
 <section class="demo-panel">
-    <p>
-        Vector layers are identified by a string <code>layerId</code> so you can remove or replace them individually.
-        Click a shape to raise <code>OnVectorClick</code> (map clicks are stopped from bubbling when hitting a vector).
-    </p>
+    @if (string.IsNullOrWhiteSpace(_token))
+    {
+        <p class="demo-warn">Configure <code>Mapbox:AccessToken</code> for this sample.</p>
+    }
+    <p>Same vector helpers as the other providers; shapes render as Mapbox layers.</p>
     <div class="demo-map-wrap">
-        <BlazorLeafletMap @ref="_map"
-                   Height="380px"
-                   Options="@_opts"
-                   OnMapReady="InitialDrawAsync"
-                   OnVectorClick="HandleVectorClick" />
+        <BlazorMapboxMap @ref="_map"
+                         Height="380px"
+                         Options="@_opts"
+                         OnMapReady="InitialDrawAsync"
+                         OnVectorClick="HandleVectorClick" />
     </div>
     <div class="demo-actions">
         <button type="button" @onclick="RedrawAsync">Redraw sample</button>
@@ -23,19 +25,36 @@
     <div class="demo-log">@_log</div>
 </section>
 
+<DemoCodeSample Title="Vectors" Code="@_snippet" />
+
 @code {
-    private BlazorLeafletMap? _map;
+    private BlazorMapboxMap? _map;
+    private string _token = "";
     private string _log = "Redraw loads a route, a park polygon, a circle, and a bounding box.";
 
-    private readonly BlazorLeafletMapOptions _opts = new()
+    private BlazorMapboxMapOptions _opts = new();
+
+    private const string _snippet =
+        """
+        await _map!.AddPolylineAsync("route", path, style);
+        await _map.AddPolygonAsync("park", ring, style);
+        await _map.ClearVectorLayersAsync();
+        """;
+
+    protected override void OnInitialized()
     {
-        Center = new BlazorMapLatLng(37.7749, -122.4194),
-        Zoom = 12,
-    };
+        _token = Configuration["Mapbox:AccessToken"] ?? "";
+        _opts = new BlazorMapboxMapOptions
+        {
+            AccessToken = _token,
+            Center = new BlazorMapLatLng(37.7749, -122.4194),
+            Zoom = 12,
+        };
+    }
 
     private async Task InitialDrawAsync()
     {
-        if (_map is null || !_map.IsMapReady) return;
+        if (_map is null || !_map.IsMapReady || string.IsNullOrWhiteSpace(_token)) return;
         await RedrawCoreAsync();
     }
 

@@ -1,0 +1,67 @@
+@page "/maplibre/tiles"
+
+<PageTitle>BlazorMap — MapLibre styles</PageTitle>
+
+<h1>Switching map styles (StyleUrl)</h1>
+
+<section class="demo-panel">
+    <p>
+        MapLibre uses a vector <strong>style JSON</strong> instead of a single raster <code>TileUrl</code>.
+        Swap <code>BlazorMapLibreMapOptions.StyleUrl</code> and recreate the component (for example with <code>@@key</code>) when you change the whole style.
+    </p>
+    <div class="demo-actions" style="margin-bottom: 0.75rem;">
+        <button type="button" class="demo-tile-btn @Active("demo")" @onclick='() => SetStyle("demo")'>MapLibre demo</button>
+        <button type="button" class="demo-tile-btn @Active("positron")" @onclick='() => SetStyle("positron")'>Carto Positron (GL)</button>
+    </div>
+    <div class="demo-map-wrap">
+        <BlazorMapLibreMap @key="_styleKey" Height="380px" Options="@_options" />
+    </div>
+    <p style="font-size: 0.9rem; color: #8b949e;">
+        Positron style © OpenStreetMap contributors © CARTO.
+    </p>
+</section>
+
+<DemoCodeSample Title="StyleUrl" Code="@_snippet" />
+
+@code {
+    private string _styleKey = "demo";
+
+    private BlazorMapLibreMapOptions _options = CreateDemo();
+
+    private string Active(string id) => _styleKey == id ? "is-active" : string.Empty;
+
+    private const string _snippet =
+        """
+        @* Recreate map when the style document changes *@
+        <BlazorMapLibreMap @key="_styleKey" Height="380px" Options="@_options" />
+
+        private BlazorMapLibreMapOptions _options = new()
+        {
+            Center = new BlazorMapLatLng(20, 0),
+            Zoom = 2,
+            StyleUrl = "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json",
+        };
+        """;
+
+    private void SetStyle(string id)
+    {
+        _styleKey = id;
+        _options = id == "positron" ? CreatePositron() : CreateDemo();
+    }
+
+    private static BlazorMapLibreMapOptions CreateDemo() =>
+        new()
+        {
+            Center = new BlazorMapLatLng(51.505, -0.09),
+            Zoom = 13,
+            StyleUrl = "https://demotiles.maplibre.org/style.json",
+        };
+
+    private static BlazorMapLibreMapOptions CreatePositron() =>
+        new()
+        {
+            Center = new BlazorMapLatLng(20, 0),
+            Zoom = 2,
+            StyleUrl = "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json",
+        };
+}

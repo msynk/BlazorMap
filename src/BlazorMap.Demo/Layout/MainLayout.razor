@@ -2,17 +2,15 @@
 
 <div class="demo-shell">
     <header class="demo-header">
-        <NavLink href="/" Match="NavLinkMatch.All" class="demo-brand" ActiveClass="is-active">BlazorMap demo</NavLink>
-        <nav class="demo-nav">
-            <NavLink class="demo-nav-link" href="/markers" ActiveClass="is-active">Markers</NavLink>
-            <NavLink class="demo-nav-link" href="/vectors" ActiveClass="is-active">Vectors</NavLink>
-            <NavLink class="demo-nav-link" href="/geojson" ActiveClass="is-active">GeoJSON</NavLink>
-            <NavLink class="demo-nav-link" href="/tiles" ActiveClass="is-active">Tiles</NavLink>
-            <NavLink class="demo-nav-link" href="/events" ActiveClass="is-active">Events</NavLink>
-            <NavLink class="demo-nav-link" href="/enterprise" ActiveClass="is-active">Enterprise</NavLink>
-            <NavLink class="demo-nav-link" href="/maplibre" ActiveClass="is-active">MapLibre</NavLink>
-            <NavLink class="demo-nav-link" href="/mapbox" ActiveClass="is-active">Mapbox</NavLink>
-        </nav>
+        <div class="demo-header-row">
+            <NavLink href="/" Match="NavLinkMatch.All" class="demo-brand" ActiveClass="is-active">BlazorMap demo</NavLink>
+            <nav class="demo-nav demo-nav-primary" aria-label="Map providers">
+                <NavLink class="demo-nav-link" href="/leaflet" ActiveClass="is-active">Leaflet</NavLink>
+                <NavLink class="demo-nav-link" href="/maplibre" ActiveClass="is-active">MapLibre GL</NavLink>
+                <NavLink class="demo-nav-link" href="/mapbox" ActiveClass="is-active">Mapbox GL</NavLink>
+            </nav>
+        </div>
+        <DemoProviderSubNav />
     </header>
     <main class="demo-main">
         @Body

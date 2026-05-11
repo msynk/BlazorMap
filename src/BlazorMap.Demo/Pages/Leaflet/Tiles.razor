@@ -1,6 +1,6 @@
-@page "/tiles"
+@page "/leaflet/tiles"
 
-<PageTitle>BlazorMap — Tiles</PageTitle>
+<PageTitle>BlazorMap — Leaflet tiles</PageTitle>
 
 <h1>Custom tile providers</h1>
 
@@ -24,12 +24,28 @@
     </p>
 </section>
 
+<DemoCodeSample Title="Switching TileUrl" Code="@_snippet" />
+
 @code {
     private string _provider = "osm";
 
     private BlazorLeafletMapOptions _options = CreateOsm();
 
     private string Active(string id) => _provider == id ? "is-active" : string.Empty;
+
+    private const string _snippet =
+        """
+        @* Force a new map instance when the template changes *@
+        <BlazorLeafletMap @key="_provider" Height="380px" Options="@_options" />
+
+        private BlazorLeafletMapOptions _options = new()
+        {
+            Center = new BlazorMapLatLng(51.505, -0.09),
+            Zoom = 13,
+            TileUrl = "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
+            TileAttribution = "&copy; OSM &copy; CARTO",
+        };
+        """;
 
     private void SetProvider(string p)
     {

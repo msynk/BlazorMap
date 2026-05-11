@@ -1,22 +1,21 @@
-@page "/markers"
+@page "/maplibre/markers"
 
-<PageTitle>BlazorMap — Markers</PageTitle>
+<PageTitle>BlazorMap — MapLibre markers</PageTitle>
 
-<h1>Markers and popups</h1>
+<h1>Markers and popups (MapLibre)</h1>
 
 <section class="demo-panel">
     <p>
-        Markers support HTML popups, optional titles, custom icons, and drag end callbacks.
-        The imperative API (<code>AddMarkerAsync</code>, <code>ClearMarkersAsync</code>, etc.) is ideal when data
-        changes frequently or comes from services.
+        The same <code>BlazorMapMarkerModel</code> and marker events apply on MapLibre GL. Prefer <code>OnMapReady</code>
+        before calling <code>AddMarkerAsync</code> so the map instance exists.
     </p>
     <div class="demo-map-wrap">
-        <BlazorLeafletMap @ref="_map"
-                   Height="360px"
-                   Options="@_opts"
-                   OnMapReady="SeedInitialMarkersAsync"
-                   OnMarkerClick="HandleMarkerClick"
-                   OnMarkerDragEnd="HandleMarkerDragEnd" />
+        <BlazorMapLibreMap @ref="_map"
+                           Height="360px"
+                           Options="@_opts"
+                           OnMapReady="SeedInitialMarkersAsync"
+                           OnMarkerClick="HandleMarkerClick"
+                           OnMarkerDragEnd="HandleMarkerDragEnd" />
     </div>
     <div class="demo-actions">
         <button type="button" @onclick="AddRandomMarkerAsync">Add marker</button>
@@ -26,16 +25,34 @@
     <div class="demo-log">@_log</div>
 </section>
 
+<DemoCodeSample Title="MapLibre markers" Code="@_snippet" />
+
 @code {
-    private BlazorLeafletMap? _map;
+    private BlazorMapLibreMap? _map;
     private string _log = "Click a pin or drag the draggable marker.";
     private int _counter;
 
-    private readonly BlazorLeafletMapOptions _opts = new()
+    private readonly BlazorMapLibreMapOptions _opts = new()
     {
         Center = new BlazorMapLatLng(48.8566, 2.3522),
         Zoom = 12,
     };
+
+    private const string _snippet =
+        """
+        <BlazorMapLibreMap @ref="_map"
+                           Options="@_opts"
+                           OnMapReady="SeedAsync"
+                           OnMarkerClick="HandleMarkerClick"
+                           OnMarkerDragEnd="HandleMarkerDragEnd" />
+
+        await _map!.AddMarkerAsync(new BlazorMapMarkerModel
+        {
+            Id = "paris",
+            Position = new BlazorMapLatLng(48.8566, 2.3522),
+            PopupHtml = "<b>Paris</b>",
+        });
+        """;
 
     private async Task SeedInitialMarkersAsync()
     {

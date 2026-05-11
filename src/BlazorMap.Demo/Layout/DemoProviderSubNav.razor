@@ -1,0 +1,56 @@
+@inject NavigationManager Nav
+@implements IDisposable
+
+@{
+    var path = new Uri(Nav.Uri).AbsolutePath.TrimEnd('/');
+    var group =
+        path.StartsWith("/leaflet", StringComparison.Ordinal) ? "leaflet"
+        : path.StartsWith("/maplibre", StringComparison.Ordinal) ? "maplibre"
+        : path.StartsWith("/mapbox", StringComparison.Ordinal) ? "mapbox"
+        : null;
+}
+
+@if (group is not null)
+{
+    <nav class="demo-subnav" aria-label="Sample pages for @group">
+        @if (group == "leaflet")
+        {
+            <NavLink class="demo-subnav-link" href="/leaflet" Match="NavLinkMatch.All">Overview</NavLink>
+            <NavLink class="demo-subnav-link" href="/leaflet/markers">Markers</NavLink>
+            <NavLink class="demo-subnav-link" href="/leaflet/vectors">Vectors</NavLink>
+            <NavLink class="demo-subnav-link" href="/leaflet/geojson">GeoJSON</NavLink>
+            <NavLink class="demo-subnav-link" href="/leaflet/tiles">Tiles</NavLink>
+            <NavLink class="demo-subnav-link" href="/leaflet/events">Events</NavLink>
+            <NavLink class="demo-subnav-link" href="/leaflet/enterprise">Enterprise</NavLink>
+        }
+        else if (group == "maplibre")
+        {
+            <NavLink class="demo-subnav-link" href="/maplibre" Match="NavLinkMatch.All">Overview</NavLink>
+            <NavLink class="demo-subnav-link" href="/maplibre/markers">Markers</NavLink>
+            <NavLink class="demo-subnav-link" href="/maplibre/vectors">Vectors</NavLink>
+            <NavLink class="demo-subnav-link" href="/maplibre/geojson">GeoJSON</NavLink>
+            <NavLink class="demo-subnav-link" href="/maplibre/tiles">Styles</NavLink>
+            <NavLink class="demo-subnav-link" href="/maplibre/events">Events</NavLink>
+            <NavLink class="demo-subnav-link" href="/maplibre/enterprise">Enterprise</NavLink>
+        }
+        else if (group == "mapbox")
+        {
+            <NavLink class="demo-subnav-link" href="/mapbox" Match="NavLinkMatch.All">Overview</NavLink>
+            <NavLink class="demo-subnav-link" href="/mapbox/markers">Markers</NavLink>
+            <NavLink class="demo-subnav-link" href="/mapbox/vectors">Vectors</NavLink>
+            <NavLink class="demo-subnav-link" href="/mapbox/geojson">GeoJSON</NavLink>
+            <NavLink class="demo-subnav-link" href="/mapbox/tiles">Styles</NavLink>
+            <NavLink class="demo-subnav-link" href="/mapbox/events">Events</NavLink>
+            <NavLink class="demo-subnav-link" href="/mapbox/enterprise">Enterprise</NavLink>
+            <NavLink class="demo-subnav-link" href="/mapbox/token-help">Token help</NavLink>
+        }
+    </nav>
+}
+
+@code {
+    protected override void OnInitialized() => Nav.LocationChanged += OnLocationChanged;
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e) => _ = InvokeAsync(StateHasChanged);
+
+    public void Dispose() => Nav.LocationChanged -= OnLocationChanged;
+}
