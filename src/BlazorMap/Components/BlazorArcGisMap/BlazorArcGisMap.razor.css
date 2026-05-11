@@ -1,0 +1,16 @@
+.blazor-map-root {
+  position: relative;
+  min-height: 120px;
+}
+
+.blazor-map-canvas {
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+/* ArcGIS renders inside a div.esri-view — ensure it fills the canvas */
+.blazor-map-root .esri-view {
+  width: 100%;
+  height: 100%;
+}

@@ -1,0 +1,77 @@
+@page "/arcgis/geojson"
+
+<PageTitle>BlazorMap — ArcGIS GeoJSON</PageTitle>
+
+<h1>GeoJSON layer</h1>
+
+<section class="demo-panel">
+    <p>
+        Pass any FeatureCollection-compatible GeoJSON string. Geometries are converted into
+        ArcGIS <code>Graphic</code> objects with matching symbols. Feature clicks
+        forward <code>properties</code> as a <code>JsonElement</code>.
+    </p>
+    <div class="demo-map-wrap">
+        <BlazorArcGisMap @ref="_map"
+                         Height="380px"
+                         Options="@_opts"
+                         OnGeoJsonFeatureClick="HandleGeoJsonFeatureClick" />
+    </div>
+    <div class="demo-actions">
+        <button type="button" @onclick="LoadSampleAsync">Load sample</button>
+        <button type="button" @onclick="ClearAsync">Remove layer</button>
+    </div>
+    <div class="demo-log">@_log</div>
+</section>
+
+<DemoCodeSample Title="GeoJSON (ArcGIS)" Code="@_snippet" />
+
+@code {
+    private BlazorArcGisMap? _map;
+    private string _log = "Load the sample FeatureCollection, then click a feature.";
+
+    private readonly BlazorArcGisMapOptions _opts = new()
+    {
+        Center = new BlazorMapLatLng(40.7128, -74.0060),
+        Zoom = 11,
+        BasemapId = "osm",
+    };
+
+    private const string _snippet =
+        """
+        await _map.AddGeoJsonAsync(
+            "demo",
+            geoJsonString,
+            new BlazorMapVectorPathStyle { Color = "#a371f7", Weight = 3, FillOpacity = 0.25 });
+
+        await _map.RemoveLayerAsync("demo");
+        """;
+
+    private async Task LoadSampleAsync()
+    {
+        if (_map is null) return;
+        await _map.RemoveLayerAsync("demo");
+        await _map.AddGeoJsonAsync(
+            "demo",
+            DemoGeoJsonSample.FeatureCollection,
+            new BlazorMapVectorPathStyle { Color = "#a371f7", Weight = 3, FillOpacity = 0.25 });
+        await _map.FitBoundsAsync(
+            new BlazorMapLatLngBounds(new BlazorMapLatLng(40.71, -74.03), new BlazorMapLatLng(40.83, -73.96)));
+        _log = "GeoJSON loaded. Click a feature.";
+        StateHasChanged();
+    }
+
+    private async Task ClearAsync()
+    {
+        if (_map is null) return;
+        await _map.RemoveLayerAsync("demo");
+        _log = "Removed layer \"demo\".";
+        StateHasChanged();
+    }
+
+    private Task HandleGeoJsonFeatureClick((string LayerId, JsonElement Properties) e)
+    {
+        var name = e.Properties.TryGetProperty("name", out var n) ? n.GetString() : "(no name)";
+        _log = $"Layer {e.LayerId}, properties.name = {name}";
+        return Task.CompletedTask;
+    }
+}

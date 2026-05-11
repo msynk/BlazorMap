@@ -1,0 +1,81 @@
+@page "/openlayers/tiles"
+
+<PageTitle>BlazorMap — OpenLayers tiles</PageTitle>
+
+<h1>Custom tile providers</h1>
+
+<section class="demo-panel">
+    <p>
+        <code>BlazorOpenLayersMapOptions.TileUrl</code> accepts an XYZ template
+        (<code>{z}</code>, <code>{x}</code>, <code>{y}</code>; optional <code>{s}</code> is normalized to a single host).
+        Respect each provider’s terms and attribution.
+    </p>
+    <div class="demo-actions" style="margin-bottom: 0.75rem;">
+        <button type="button" class="demo-tile-btn @Active("osm")" @onclick='() => SetProvider("osm")'>OSM default</button>
+        <button type="button" class="demo-tile-btn @Active("carto")" @onclick='() => SetProvider("carto")'>Carto Voyager</button>
+        <button type="button" class="demo-tile-btn @Active("opentopo")" @onclick='() => SetProvider("opentopo")'>OpenTopoMap</button>
+    </div>
+    <div class="demo-map-wrap">
+        <BlazorOpenLayersMap @key="_provider" Height="380px" Options="@_options" />
+    </div>
+    <p style="font-size: 0.9rem; color: #8b949e;">
+        Carto: © OpenStreetMap contributors, © CARTO.
+        OpenTopoMap: © OpenStreetMap contributors, SRTM | map style: © OpenTopoMap.
+    </p>
+</section>
+
+<DemoCodeSample Title="Switching TileUrl" Code="@_snippet" />
+
+@code {
+    private string _provider = "osm";
+
+    private BlazorOpenLayersMapOptions _options = CreateOsm();
+
+    private string Active(string id) => _provider == id ? "is-active" : string.Empty;
+
+    private const string _snippet =
+        """
+        <BlazorOpenLayersMap @key="_provider" Height="380px" Options="@_options" />
+
+        private BlazorOpenLayersMapOptions _options = new()
+        {
+            Center = new BlazorMapLatLng(51.505, -0.09),
+            Zoom = 13,
+            TileUrl = "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
+            TileAttribution = "&copy; OSM &copy; CARTO",
+        };
+        """;
+
+    private void SetProvider(string p)
+    {
+        _provider = p;
+        _options = p switch
+        {
+            "carto" => new BlazorOpenLayersMapOptions
+            {
+                Center = new BlazorMapLatLng(20, 0),
+                Zoom = 2,
+                TileUrl = "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
+                TileAttribution =
+                    "&copy; OSM &copy; <a href=\"https://carto.com/attributions\">CARTO</a>",
+            },
+            "opentopo" => new BlazorOpenLayersMapOptions
+            {
+                Center = new BlazorMapLatLng(46.5, 11.3),
+                Zoom = 10,
+                TileUrl = "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
+                TileAttribution =
+                    "Map data: &copy; OpenStreetMap contributors, SRTM | Map style: &copy; OpenTopoMap",
+                TileMaxZoom = 17,
+            },
+            _ => CreateOsm(),
+        };
+    }
+
+    private static BlazorOpenLayersMapOptions CreateOsm() =>
+        new()
+        {
+            Center = new BlazorMapLatLng(51.505, -0.09),
+            Zoom = 13,
+        };
+}

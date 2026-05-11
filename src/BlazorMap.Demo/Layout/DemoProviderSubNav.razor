@@ -7,6 +7,8 @@
         path.StartsWith("/leaflet", StringComparison.Ordinal) ? "leaflet"
         : path.StartsWith("/maplibre", StringComparison.Ordinal) ? "maplibre"
         : path.StartsWith("/mapbox", StringComparison.Ordinal) ? "mapbox"
+        : path.StartsWith("/openlayers", StringComparison.Ordinal) ? "openlayers"
+        : path.StartsWith("/arcgis", StringComparison.Ordinal) ? "arcgis"
         : null;
 }
 
@@ -43,6 +45,26 @@
             <NavLink class="demo-subnav-link" href="/mapbox/events">Events</NavLink>
             <NavLink class="demo-subnav-link" href="/mapbox/enterprise">Enterprise</NavLink>
             <NavLink class="demo-subnav-link" href="/mapbox/token-help">Token help</NavLink>
+        }
+        else if (group == "openlayers")
+        {
+            <NavLink class="demo-subnav-link" href="/openlayers" Match="NavLinkMatch.All">Overview</NavLink>
+            <NavLink class="demo-subnav-link" href="/openlayers/markers">Markers</NavLink>
+            <NavLink class="demo-subnav-link" href="/openlayers/vectors">Vectors</NavLink>
+            <NavLink class="demo-subnav-link" href="/openlayers/geojson">GeoJSON</NavLink>
+            <NavLink class="demo-subnav-link" href="/openlayers/tiles">Tiles</NavLink>
+            <NavLink class="demo-subnav-link" href="/openlayers/events">Events</NavLink>
+            <NavLink class="demo-subnav-link" href="/openlayers/enterprise">Enterprise</NavLink>
+        }
+        else if (group == "arcgis")
+        {
+            <NavLink class="demo-subnav-link" href="/arcgis" Match="NavLinkMatch.All">Overview</NavLink>
+            <NavLink class="demo-subnav-link" href="/arcgis/markers">Markers</NavLink>
+            <NavLink class="demo-subnav-link" href="/arcgis/vectors">Vectors</NavLink>
+            <NavLink class="demo-subnav-link" href="/arcgis/geojson">GeoJSON</NavLink>
+            <NavLink class="demo-subnav-link" href="/arcgis/tiles">Basemaps</NavLink>
+            <NavLink class="demo-subnav-link" href="/arcgis/events">Events</NavLink>
+            <NavLink class="demo-subnav-link" href="/arcgis/enterprise">Enterprise</NavLink>
         }
     </nav>
 }

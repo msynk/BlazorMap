@@ -1,0 +1,85 @@
+@page "/arcgis"
+
+<PageTitle>BlazorMap — ArcGIS Maps SDK</PageTitle>
+
+<h1>ArcGIS Maps SDK for JavaScript</h1>
+
+<section class="demo-panel">
+    <p>
+        <code>BlazorArcGisMap</code> targets the
+        <a href="https://developers.arcgis.com/javascript/latest/" target="_blank" rel="noopener noreferrer">ArcGIS Maps SDK for JavaScript 5.0</a>.
+        The SDK is loaded from the Esri CDN via the AMD loader on first use — no npm install required.
+        The default <code>"osm"</code> basemap works without an API key; Esri-hosted basemaps
+        (<code>"streets-vector"</code>, <code>"satellite"</code>, etc.) need an
+        <a href="https://developers.arcgis.com/" target="_blank" rel="noopener noreferrer">ArcGIS API key</a>.
+    </p>
+    <div class="demo-map-wrap">
+        <BlazorArcGisMap @ref="_map"
+                         Height="300px"
+                         Options="@_options"
+                         OnMapReady="OnMapReadyAsync"
+                         OnViewChanged="OnViewChanged" />
+    </div>
+    <p class="demo-muted">@_viewSummary</p>
+</section>
+
+<section class="demo-panel">
+    <h2>Try next</h2>
+    <ul>
+        <li><NavLink href="/arcgis/markers">Markers and popups</NavLink></li>
+        <li><NavLink href="/arcgis/vectors">Polylines, polygons, circles, rectangles</NavLink></li>
+        <li><NavLink href="/arcgis/geojson">GeoJSON layer</NavLink></li>
+        <li><NavLink href="/arcgis/tiles">Basemaps and tile overlays</NavLink></li>
+        <li><NavLink href="/arcgis/events">Events and layout</NavLink></li>
+        <li><NavLink href="/arcgis/enterprise">Enterprise-style options</NavLink></li>
+    </ul>
+</section>
+
+<DemoCodeSample Title="Minimal ArcGIS map" Code="@_snippet" />
+
+@code {
+    private BlazorArcGisMap? _map;
+    private string _viewSummary = "Pan or zoom to see view state.";
+
+    private readonly BlazorArcGisMapOptions _options = new()
+    {
+        Center = new BlazorMapLatLng(51.5074, -0.1278),
+        Zoom = 5,
+        BasemapId = "osm",
+    };
+
+    private const string _snippet =
+        """
+        <BlazorArcGisMap Height="300px"
+                         Options="@_options"
+                         OnViewChanged="OnViewChanged" />
+
+        @code {
+            private readonly BlazorArcGisMapOptions _options = new()
+            {
+                Center = new BlazorMapLatLng(51.5074, -0.1278),
+                Zoom = 5,
+                BasemapId = "osm", // Esri basemaps require ApiKey
+            };
+        }
+        """;
+
+    private async Task OnMapReadyAsync()
+    {
+        if (_map is null) return;
+        await _map.AddMarkerAsync(new BlazorMapMarkerModel
+        {
+            Id = "london",
+            Position = _options.Center,
+            Title = "London",
+            PopupHtml = "<strong>ArcGIS Maps SDK</strong><br/>OSM basemap, no API key needed.",
+        });
+    }
+
+    private Task OnViewChanged(BlazorMapViewState state)
+    {
+        _viewSummary = $"Center {state.Center.Latitude:F4}, {state.Center.Longitude:F4} · zoom {state.Zoom:F1}";
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+}

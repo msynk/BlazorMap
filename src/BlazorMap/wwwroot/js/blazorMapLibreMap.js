@@ -2,23 +2,34 @@
  * BlazorMapLibreMap — MapLibre GL JS bridge. Loads maplibre-gl from CDN on first init.
  * Center is latitude/longitude in options; MapLibre uses [lng, lat] internally.
  */
-import { loadScript, loadStylesheet } from "./mapDependencyLoader.js";
+import { loadScript, loadStylesheet, resetScript } from "./mapDependencyLoader.js";
 
 const maps = new Map();
 
 let maplibreLoadPromise = null;
 
+const MAPLIBRE_VER = "4.7.1";
+const MAPLIBRE_JS  = `https://unpkg.com/maplibre-gl@${MAPLIBRE_VER}/dist/maplibre-gl.js`;
+const MAPLIBRE_CSS = `https://unpkg.com/maplibre-gl@${MAPLIBRE_VER}/dist/maplibre-gl.css`;
+
 async function ensureMapLibre() {
   if (globalThis.maplibregl) return;
   if (!maplibreLoadPromise) {
     maplibreLoadPromise = (async () => {
-      const ver = "4.7.1";
-      await loadStylesheet(`https://unpkg.com/maplibre-gl@${ver}/dist/maplibre-gl.css`);
-      await loadScript(`https://unpkg.com/maplibre-gl@${ver}/dist/maplibre-gl.js`);
+      await loadStylesheet(MAPLIBRE_CSS).catch(() => {});
+      await loadScript(MAPLIBRE_JS);
     })();
   }
-  await maplibreLoadPromise;
+  try {
+    await maplibreLoadPromise;
+  } catch (err) {
+    maplibreLoadPromise = null;
+    resetScript(MAPLIBRE_JS);
+    throw err;
+  }
   if (!globalThis.maplibregl) {
+    maplibreLoadPromise = null;
+    resetScript(MAPLIBRE_JS);
     throw new Error("MapLibre GL JS failed to load from CDN.");
   }
 }

@@ -1,0 +1,119 @@
+@page "/arcgis/tiles"
+
+<PageTitle>BlazorMap — ArcGIS basemaps &amp; tiles</PageTitle>
+
+<h1>Basemaps and tile overlays</h1>
+
+<section class="demo-panel">
+    <p>
+        <code>BlazorArcGisMapOptions.BasemapId</code> selects a named ArcGIS basemap. The <code>"osm"</code>
+        basemap is free and needs no API key. Esri-hosted basemaps
+        (<code>"streets-vector"</code>, <code>"satellite"</code>, <code>"topo-vector"</code>, etc.)
+        require an <a href="https://developers.arcgis.com/" target="_blank" rel="noopener noreferrer">ArcGIS API key</a>
+        set via <code>BlazorArcGisMapOptions.ApiKey</code>.
+    </p>
+    <p>
+        You can also layer any XYZ tile service on top via
+        <code>AddTileOverlayAsync</code> — ArcGIS <code>WebTileLayer</code>
+        is used under the hood (URL template variables are auto-converted from
+        <code>{z}/{x}/{y}</code> to ArcGIS notation).
+    </p>
+    <div class="demo-actions" style="margin-bottom:0.75rem;">
+        <button type="button" class="demo-tile-btn @Active("osm")" @onclick='() => SetBasemap("osm")'>OSM (free)</button>
+        <button type="button" class="demo-tile-btn @Active("streets-vector")" @onclick='() => SetBasemap("streets-vector")'>Streets (API key)</button>
+        <button type="button" class="demo-tile-btn @Active("satellite")" @onclick='() => SetBasemap("satellite")'>Satellite (API key)</button>
+        <button type="button" class="demo-tile-btn @Active("topo-vector")" @onclick='() => SetBasemap("topo-vector")'>Topo (API key)</button>
+    </div>
+    <div class="demo-map-wrap">
+        <BlazorArcGisMap @key="_basemapId" @ref="_map" Height="380px" Options="@_options" />
+    </div>
+    <p style="font-size:0.9rem;color:#8b949e;">
+        Esri basemaps shown without an API key will display an error widget on the map.
+    </p>
+</section>
+
+<section class="demo-panel">
+    <h2>XYZ tile overlay</h2>
+    <p>Adds a Carto Voyager overlay on top of the current basemap via <code>AddTileOverlayAsync</code>.</p>
+    <div class="demo-actions">
+        <button type="button" @onclick="AddOverlayAsync">Add Carto overlay</button>
+        <button type="button" @onclick="RemoveOverlayAsync">Remove overlay</button>
+    </div>
+    <div class="demo-log">@_log</div>
+</section>
+
+<DemoCodeSample Title="Basemap and tile overlay" Code="@_snippet" />
+
+@code {
+    private BlazorArcGisMap? _map;
+    private string _basemapId = "osm";
+    private string _log = "Add or remove the overlay layer.";
+
+    private BlazorArcGisMapOptions _options = new()
+    {
+        Center = new BlazorMapLatLng(20, 0),
+        Zoom = 2,
+        BasemapId = "osm",
+    };
+
+    private string Active(string id) => _basemapId == id ? "is-active" : string.Empty;
+
+    private const string _snippet =
+        """
+        // Switch basemap by recreating the component with @key:
+        private BlazorArcGisMapOptions _options = new()
+        {
+            BasemapId = "streets-vector", // requires ApiKey
+            ApiKey = "<your-key>",
+        };
+
+        // Add a custom XYZ tile overlay:
+        await _map.AddTileOverlayAsync(new BlazorMapTileOverlayOptions
+        {
+            Id = "carto",
+            UrlTemplate = "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png",
+            Attribution = "&copy; OSM &copy; CARTO",
+            Opacity = 0.7,
+        });
+        """;
+
+    private void SetBasemap(string id)
+    {
+        _basemapId = id;
+        _options = new BlazorArcGisMapOptions
+        {
+            Center = new BlazorMapLatLng(20, 0),
+            Zoom = 2,
+            BasemapId = id,
+        };
+    }
+
+    private async Task AddOverlayAsync()
+    {
+        if (_map is null) return;
+        try
+        {
+            await _map.AddTileOverlayAsync(new BlazorMapTileOverlayOptions
+            {
+                Id = "carto",
+                UrlTemplate = "https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png",
+                Attribution = "&copy; OSM &copy; CARTO",
+                Opacity = 0.6,
+            });
+            _log = "Carto overlay added.";
+        }
+        catch (Exception ex)
+        {
+            _log = "Overlay failed: " + ex.Message;
+        }
+        StateHasChanged();
+    }
+
+    private async Task RemoveOverlayAsync()
+    {
+        if (_map is null) return;
+        await _map.RemoveTileOverlayAsync("carto");
+        _log = "Overlay removed.";
+        StateHasChanged();
+    }
+}

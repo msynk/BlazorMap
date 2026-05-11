@@ -1,0 +1,121 @@
+@page "/arcgis/markers"
+
+<PageTitle>BlazorMap — ArcGIS markers</PageTitle>
+
+<h1>Markers and popups</h1>
+
+<section class="demo-panel">
+    <p>
+        Markers are rendered as ArcGIS <code>Graphic</code> objects on a <code>GraphicsLayer</code>.
+        Click a pin to open its popup. Drag the draggable marker to fire <code>OnMarkerDragEnd</code>.
+        Custom icon URLs are also supported via <code>BlazorMapMarkerModel.IconUrl</code>.
+    </p>
+    <div class="demo-map-wrap">
+        <BlazorArcGisMap @ref="_map"
+                         Height="360px"
+                         Options="@_opts"
+                         OnMapReady="SeedInitialMarkersAsync"
+                         OnMarkerClick="HandleMarkerClick"
+                         OnMarkerDragEnd="HandleMarkerDragEnd" />
+    </div>
+    <div class="demo-actions">
+        <button type="button" @onclick="AddRandomMarkerAsync">Add marker</button>
+        <button type="button" @onclick="ClearAsync">Clear all</button>
+        <button type="button" @onclick="OpenLondonPopupAsync">Open London popup</button>
+    </div>
+    <div class="demo-log">@_log</div>
+</section>
+
+<DemoCodeSample Title="Markers (ArcGIS)" Code="@_snippet" />
+
+@code {
+    private BlazorArcGisMap? _map;
+    private string _log = "Click a pin or drag the draggable marker.";
+    private int _counter;
+
+    private readonly BlazorArcGisMapOptions _opts = new()
+    {
+        Center = new BlazorMapLatLng(48.8566, 2.3522),
+        Zoom = 5,
+        BasemapId = "osm",
+    };
+
+    private const string _snippet =
+        """
+        <BlazorArcGisMap @ref="_map"
+                         Height="360px"
+                         Options="@_opts"
+                         OnMapReady="SeedInitialMarkersAsync"
+                         OnMarkerClick="HandleMarkerClick"
+                         OnMarkerDragEnd="HandleMarkerDragEnd" />
+        """;
+
+    private async Task SeedInitialMarkersAsync()
+    {
+        if (_map is null || !_map.IsMapReady) return;
+        await _map.AddMarkerAsync(new BlazorMapMarkerModel
+        {
+            Id = "paris",
+            Position = new BlazorMapLatLng(48.8566, 2.3522),
+            PopupHtml = "<b>Paris</b><br/>Built-in ArcGIS popup.",
+            Title = "Paris",
+        });
+        await _map.AddMarkerAsync(new BlazorMapMarkerModel
+        {
+            Id = "london",
+            Position = new BlazorMapLatLng(51.5074, -0.1278),
+            PopupHtml = "<b>London</b><br/>Try \u201cOpen London popup\u201d.",
+            Draggable = true,
+        });
+        await _map.FitBoundsAsync(
+            new BlazorMapLatLngBounds(new BlazorMapLatLng(48.5, 2.0), new BlazorMapLatLng(51.7, 0.0)));
+    }
+
+    private async Task AddRandomMarkerAsync()
+    {
+        if (_map is null) return;
+        _counter++;
+        var id = $"m{_counter}";
+        var lat = 48.7 + Random.Shared.NextDouble() * 3.2;
+        var lng = -0.5 + Random.Shared.NextDouble() * 3.5;
+        await _map.AddMarkerAsync(new BlazorMapMarkerModel
+        {
+            Id = id,
+            Position = new BlazorMapLatLng(lat, lng),
+            PopupHtml = $"<span>Marker <code>{id}</code></span>",
+        });
+        Append($"Added {id} at {lat:F4}, {lng:F4}");
+    }
+
+    private async Task ClearAsync()
+    {
+        if (_map is null) return;
+        await _map.ClearMarkersAsync();
+        Append("Cleared all markers.");
+    }
+
+    private async Task OpenLondonPopupAsync()
+    {
+        if (_map is null) return;
+        await _map.OpenMarkerPopupAsync("london");
+        Append("Requested popup for london.");
+    }
+
+    private Task HandleMarkerClick(string id)
+    {
+        Append($"Marker click: {id}");
+        return Task.CompletedTask;
+    }
+
+    private Task HandleMarkerDragEnd((string Id, BlazorMapLatLng Position) e)
+    {
+        Append($"Drag end {e.Id} → {e.Position.Lat:F5}, {e.Position.Lng:F5}");
+        return Task.CompletedTask;
+    }
+
+    private void Append(string line)
+    {
+        _log = line + Environment.NewLine + _log;
+        StateHasChanged();
+    }
+}

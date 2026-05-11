@@ -1,6 +1,6 @@
 namespace BlazorMap.Demo.Shared;
 
-/// <summary>Shared GeoJSON for demos (Leaflet / MapLibre / Mapbox).</summary>
+/// <summary>Shared GeoJSON for demos (Leaflet / MapLibre / Mapbox / OpenLayers).</summary>
 public static class DemoGeoJsonSample
 {
     public const string FeatureCollection =

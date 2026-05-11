@@ -2,22 +2,33 @@
  * BlazorMapboxMap — Mapbox GL JS bridge. Loads mapbox-gl from CDN on first init.
  * Center is latitude/longitude in options; Mapbox uses [lng, lat] internally.
  */
-import { loadScript, loadStylesheet } from "./mapDependencyLoader.js";
+import { loadScript, loadStylesheet, resetScript } from "./mapDependencyLoader.js";
 
 const maps = new Map();
 
 let mapboxLoadPromise = null;
 
+const MAPBOX_JS  = "https://api.mapbox.com/mapbox-gl-js/v3.7.0/mapbox-gl.js";
+const MAPBOX_CSS = "https://api.mapbox.com/mapbox-gl-js/v3.7.0/mapbox-gl.css";
+
 async function ensureMapbox() {
   if (globalThis.mapboxgl) return;
   if (!mapboxLoadPromise) {
     mapboxLoadPromise = (async () => {
-      await loadStylesheet("https://api.mapbox.com/mapbox-gl-js/v3.7.0/mapbox-gl.css");
-      await loadScript("https://api.mapbox.com/mapbox-gl-js/v3.7.0/mapbox-gl.js");
+      await loadStylesheet(MAPBOX_CSS).catch(() => {});
+      await loadScript(MAPBOX_JS);
     })();
   }
-  await mapboxLoadPromise;
+  try {
+    await mapboxLoadPromise;
+  } catch (err) {
+    mapboxLoadPromise = null;
+    resetScript(MAPBOX_JS);
+    throw err;
+  }
   if (!globalThis.mapboxgl) {
+    mapboxLoadPromise = null;
+    resetScript(MAPBOX_JS);
     throw new Error("Mapbox GL JS failed to load from CDN.");
   }
 }

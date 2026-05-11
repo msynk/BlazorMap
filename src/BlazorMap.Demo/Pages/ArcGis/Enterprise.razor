@@ -1,0 +1,129 @@
+@page "/arcgis/enterprise"
+
+<PageTitle>BlazorMap — ArcGIS enterprise-style</PageTitle>
+
+<h1>What commercial suites emphasize</h1>
+
+<section class="demo-panel">
+    <p>
+        Commercial mapping controls (Telerik, Syncfusion, DevExpress) stress interaction toggles,
+        scale bars, marker tooltips, fit-to-bounds, and reading the viewport programmatically.
+        This page shows the same features for <code>BlazorArcGisMap</code> without a vendor subscription.
+    </p>
+    <ul>
+        <li>Interaction toggles — scroll wheel zoom, drag pan</li>
+        <li>ArcGIS <code>ScaleBar</code> widget</li>
+        <li>Marker hover-tooltips and <code>FitBoundsToMarkersAsync</code></li>
+        <li>Read viewport via <code>GetViewAsync</code></li>
+        <li>Double-click event via <code>OnMapDoubleClick</code></li>
+    </ul>
+</section>
+
+<section class="demo-panel">
+    <h2>Live sample</h2>
+    <p>
+        <label><input type="checkbox" @bind="_wheel" /> Scroll wheel zoom</label>
+        &nbsp;
+        <label><input type="checkbox" @bind="_drag" /> Dragging</label>
+        &nbsp;
+        <label><input type="checkbox" @bind="_scale" /> Scale bar</label>
+    </p>
+    <div class="demo-map-wrap">
+        <BlazorArcGisMap @ref="_map"
+                         Height="380px"
+                         Options="@BuildOptions()"
+                         OnMapDoubleClick="HandleDbl"
+                         OnViewChanged="HandleView" />
+    </div>
+    <div class="demo-actions">
+        <button type="button" @onclick="AddClusterLikePinsAsync">Add three pins + fit bounds</button>
+        <button type="button" @onclick="ReadViewAsync">Log viewport (GetViewAsync)</button>
+    </div>
+    <div class="demo-log">@_log</div>
+</section>
+
+<DemoCodeSample Title="ArcGIS enterprise-style options" Code="@_snippet" />
+
+@code {
+    private BlazorArcGisMap? _map;
+    private string _log = "Toggle options or use the buttons.";
+    private bool _wheel = true;
+    private bool _drag = true;
+    private bool _scale = true;
+
+    private const string _snippet =
+        """
+        var opts = new BlazorArcGisMapOptions
+        {
+            Center = new BlazorMapLatLng(51.5074, -0.1278),
+            Zoom = 11,
+            BasemapId = "osm",
+            ShowScaleControl = true,
+            ScrollWheelZoom = true,
+            Dragging = true,
+            ApiKey = "<key>", // set to use Esri basemaps
+        };
+
+        await _map.FitBoundsToMarkersAsync(paddingPixels: 56);
+        var view = await _map.GetViewAsync();
+        """;
+
+    private BlazorArcGisMapOptions BuildOptions() =>
+        new()
+        {
+            Center = new BlazorMapLatLng(51.5074, -0.1278),
+            Zoom = 11,
+            BasemapId = "osm",
+            ShowScaleControl = _scale,
+            ScrollWheelZoom = _wheel,
+            Dragging = _drag,
+        };
+
+    private Task HandleDbl(BlazorMapLatLng p)
+    {
+        _log = $"Double-click at {p.Lat:F4}, {p.Lng:F4}";
+        return Task.CompletedTask;
+    }
+
+    private Task HandleView(BlazorMapViewState _) => Task.CompletedTask;
+
+    private async Task AddClusterLikePinsAsync()
+    {
+        if (_map is null) return;
+        await _map.ClearMarkersAsync();
+        await _map.AddMarkerAsync(new BlazorMapMarkerModel
+        {
+            Id = "a",
+            Position = new BlazorMapLatLng(51.52, -0.10),
+            TooltipHtml = "<b>West End</b> (tooltip)",
+            PopupHtml = "Popup A",
+        });
+        await _map.AddMarkerAsync(new BlazorMapMarkerModel
+        {
+            Id = "b",
+            Position = new BlazorMapLatLng(51.50, -0.08),
+            TooltipHtml = "City (tooltip)",
+            PopupHtml = "Popup B",
+        });
+        await _map.AddMarkerAsync(new BlazorMapMarkerModel
+        {
+            Id = "c",
+            Position = new BlazorMapLatLng(51.48, -0.06),
+            TooltipHtml = "South Bank (tooltip)",
+            PopupHtml = "Popup C",
+        });
+        await _map.FitBoundsToMarkersAsync(56);
+        _log = "Three markers added; view fitted with FitBoundsToMarkersAsync.";
+        StateHasChanged();
+    }
+
+    private async Task ReadViewAsync()
+    {
+        if (_map is null) return;
+        var v = await _map.GetViewAsync();
+        _log =
+            $"GetViewAsync → zoom {v.Zoom:F2}, center {v.Center.Lat:F4},{v.Center.Lng:F4}, " +
+            $"bounds NE {v.Bounds.NorthEast.Lat:F4},{v.Bounds.NorthEast.Lng:F4}";
+        StateHasChanged();
+    }
+}

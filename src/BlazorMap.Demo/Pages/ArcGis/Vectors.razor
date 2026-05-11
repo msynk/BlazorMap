@@ -1,0 +1,115 @@
+@page "/arcgis/vectors"
+
+<PageTitle>BlazorMap — ArcGIS vectors</PageTitle>
+
+<h1>Polylines, polygons, circles, rectangles</h1>
+
+<section class="demo-panel">
+    <p>
+        Vector shapes are rendered as <code>Graphic</code> objects in dedicated <code>GraphicsLayer</code> instances,
+        each identified by a string <code>layerId</code>. Click a shape to raise <code>OnVectorClick</code>.
+    </p>
+    <div class="demo-map-wrap">
+        <BlazorArcGisMap @ref="_map"
+                         Height="380px"
+                         Options="@_opts"
+                         OnMapReady="InitialDrawAsync"
+                         OnVectorClick="HandleVectorClick" />
+    </div>
+    <div class="demo-actions">
+        <button type="button" @onclick="RedrawAsync">Redraw sample</button>
+        <button type="button" @onclick="ClearAsync">Clear vectors</button>
+    </div>
+    <div class="demo-log">@_log</div>
+</section>
+
+<DemoCodeSample Title="Vectors API (ArcGIS)" Code="@_snippet" />
+
+@code {
+    private BlazorArcGisMap? _map;
+    private string _log = "Redraw draws a route, a park polygon, a radius circle, and a bounding box.";
+
+    private readonly BlazorArcGisMapOptions _opts = new()
+    {
+        Center = new BlazorMapLatLng(37.7749, -122.4194),
+        Zoom = 12,
+        BasemapId = "osm",
+    };
+
+    private const string _snippet =
+        """
+        await _map.AddPolylineAsync("route", path, new BlazorMapVectorPathStyle { Color = "#f85149", Weight = 5 });
+        await _map.AddPolygonAsync("park", ring, new BlazorMapVectorPathStyle { Color = "#3fb950", FillOpacity = 0.35 });
+        await _map.AddCircleAsync("radius", center, radiusMeters: 900, style);
+        await _map.AddRectangleAsync("box", bounds, style);
+        await _map.ClearVectorLayersAsync();
+        """;
+
+    private async Task InitialDrawAsync()
+    {
+        if (_map is null || !_map.IsMapReady) return;
+        await RedrawCoreAsync();
+    }
+
+    private async Task RedrawAsync()
+    {
+        if (_map is null) return;
+        await RedrawCoreAsync();
+        StateHasChanged();
+    }
+
+    private async Task RedrawCoreAsync()
+    {
+        if (_map is null) return;
+        await _map.ClearVectorLayersAsync();
+
+        await _map.AddPolylineAsync(
+            "route",
+            [
+                new BlazorMapLatLng(37.80, -122.42),
+                new BlazorMapLatLng(37.79, -122.41),
+                new BlazorMapLatLng(37.78, -122.40),
+                new BlazorMapLatLng(37.77, -122.395),
+            ],
+            new BlazorMapVectorPathStyle { Color = "#f85149", Weight = 5, Opacity = 0.9 });
+
+        await _map.AddPolygonAsync(
+            "park",
+            [
+                new BlazorMapLatLng(37.769, -122.486),
+                new BlazorMapLatLng(37.771, -122.475),
+                new BlazorMapLatLng(37.765, -122.472),
+                new BlazorMapLatLng(37.762, -122.482),
+            ],
+            new BlazorMapVectorPathStyle { Color = "#3fb950", FillOpacity = 0.35, Weight = 2 });
+
+        await _map.AddCircleAsync(
+            "radius",
+            new BlazorMapLatLng(37.7849, -122.4094),
+            radiusMeters: 900,
+            new BlazorMapVectorPathStyle { Color = "#58a6ff", FillOpacity = 0.15, Weight = 2 });
+
+        await _map.AddRectangleAsync(
+            "box",
+            new BlazorMapLatLngBounds(new BlazorMapLatLng(37.748, -122.44), new BlazorMapLatLng(37.756, -122.42)),
+            new BlazorMapVectorPathStyle { Color = "#d29922", FillOpacity = 0.12, Weight = 2, DashArray = "6 4" });
+
+        await _map.FitBoundsAsync(
+            new BlazorMapLatLngBounds(new BlazorMapLatLng(37.755, -122.49), new BlazorMapLatLng(37.805, -122.38)));
+
+        _log = "Sample vectors drawn. Click a shape to see its layer id.";
+    }
+
+    private async Task ClearAsync()
+    {
+        if (_map is null) return;
+        await _map.ClearVectorLayersAsync();
+        _log = "All vector layers cleared.";
+    }
+
+    private Task HandleVectorClick((string LayerId, string Kind, BlazorMapLatLng Position) e)
+    {
+        _log = $"{e.Kind} \"{e.LayerId}\" @ {e.Position.Lat:F5}, {e.Position.Lng:F5}";
+        return Task.CompletedTask;
+    }
+}

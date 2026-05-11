@@ -1,22 +1,37 @@
 /**
  * BlazorLeafletMap — Leaflet bridge. Loads Leaflet from CDN on first init.
  */
-import { loadScript, loadStylesheet } from "./mapDependencyLoader.js";
+import { loadScript, loadStylesheet, resetScript } from "./mapDependencyLoader.js";
 
 const maps = new Map();
 
 let leafletReadyPromise = null;
 
+const LEAFLET_JS  = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
+const LEAFLET_CSS = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
+
 async function ensureLeaflet() {
   if (globalThis.L) return;
   if (!leafletReadyPromise) {
     leafletReadyPromise = (async () => {
-      await loadStylesheet("https://unpkg.com/leaflet@1.9.4/dist/leaflet.css");
-      await loadScript("https://unpkg.com/leaflet@1.9.4/dist/leaflet.js");
+      await loadStylesheet(LEAFLET_CSS).catch(() => {});
+      await loadScript(LEAFLET_JS);
     })();
   }
-  await leafletReadyPromise;
+  try {
+    await leafletReadyPromise;
+  } catch (err) {
+    // Network / CDN error — purge completely so next navigation retries.
+    leafletReadyPromise = null;
+    resetScript(LEAFLET_JS);
+    throw err;
+  }
   if (!globalThis.L) {
+    // Script tag loaded (onload fired) but Leaflet didn't set window.L —
+    // CDN probably served wrong content. Purge the stale element and promise
+    // so the next navigation makes a completely fresh attempt.
+    leafletReadyPromise = null;
+    resetScript(LEAFLET_JS);
     throw new Error("Leaflet failed to load from CDN.");
   }
 }

@@ -1,0 +1,80 @@
+@page "/openlayers"
+
+<PageTitle>BlazorMap — OpenLayers</PageTitle>
+
+<h1>OpenLayers</h1>
+
+<section class="demo-panel">
+    <p>
+        <code>BlazorOpenLayersMap</code> uses <a href="https://openlayers.org/" target="_blank" rel="noopener noreferrer">OpenLayers</a>
+        with the same .NET imperative API as the other providers (markers, vectors, GeoJSON, tile overlays). OpenLayers loads from <a href="https://esm.sh/" target="_blank" rel="noopener noreferrer">esm.sh</a> on first use so npm dependencies resolve in the browser; CSS still comes from jsDelivr.
+    </p>
+    <div class="demo-map-wrap">
+        <BlazorOpenLayersMap @ref="_map"
+                             Height="300px"
+                             Options="@_options"
+                             OnMapReady="OnMapReadyAsync"
+                             OnViewChanged="OnViewChanged" />
+    </div>
+    <p class="demo-muted">@_viewSummary</p>
+</section>
+
+<section class="demo-panel">
+    <h2>Try next</h2>
+    <ul>
+        <li><NavLink href="/openlayers/markers">Markers</NavLink></li>
+        <li><NavLink href="/openlayers/vectors">Vectors</NavLink></li>
+        <li><NavLink href="/openlayers/geojson">GeoJSON</NavLink></li>
+        <li><NavLink href="/openlayers/tiles">Tiles</NavLink></li>
+        <li><NavLink href="/openlayers/events">Events and layout</NavLink></li>
+        <li><NavLink href="/openlayers/enterprise">Enterprise-style options</NavLink></li>
+    </ul>
+</section>
+
+<DemoCodeSample Title="Minimal OpenLayers map" Code="@_snippet" />
+
+@code {
+    private BlazorOpenLayersMap? _map;
+
+    private readonly BlazorOpenLayersMapOptions _options = new()
+    {
+        Center = new BlazorMapLatLng(51.5074, -0.1278),
+        Zoom = 5,
+    };
+
+    private string _viewSummary = "Pan or zoom to see view state.";
+
+    private const string _snippet =
+        """
+        <BlazorOpenLayersMap Height="300px"
+                             Options="@_options"
+                             OnViewChanged="OnViewChanged" />
+
+        @code {
+            private readonly BlazorOpenLayersMapOptions _options = new()
+            {
+                Center = new BlazorMapLatLng(51.5074, -0.1278),
+                Zoom = 5,
+            };
+        }
+        """;
+
+    private async Task OnMapReadyAsync()
+    {
+        if (_map is null) return;
+        await _map.AddMarkerAsync(new BlazorMapMarkerModel
+        {
+            Id = "london",
+            Position = _options.Center,
+            Title = "London",
+            PopupHtml = "<strong>OpenLayers</strong><br/>Default OSM tiles via XYZ source.",
+        });
+    }
+
+    private Task OnViewChanged(BlazorMapViewState state)
+    {
+        _viewSummary = $"Center {state.Center.Latitude:F4}, {state.Center.Longitude:F4} · zoom {state.Zoom:F1}";
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+}

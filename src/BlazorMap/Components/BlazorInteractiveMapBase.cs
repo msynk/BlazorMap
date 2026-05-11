@@ -5,7 +5,7 @@ using Microsoft.JSInterop;
 namespace BlazorMap;
 
 /// <summary>
-/// Shared interop surface for provider-specific map components (Leaflet, Mapbox GL, MapLibre GL, etc.).
+/// Shared interop surface for provider-specific map components (Leaflet, MapLibre GL, Mapbox GL, OpenLayers, etc.).
 /// </summary>
 public abstract class BlazorInteractiveMapBase<TOptions> : ComponentBase, IAsyncDisposable
     where TOptions : class, new()
