@@ -1,7 +1,7 @@
 namespace BlazorMap;
 
-/// <summary>Initial display settings for <see cref="BlazorMapLibreMap"/> (MapLibre GL JS, open source).</summary>
-public sealed class MapLibreMapDisplayOptions
+/// <summary>Initial display settings for <see cref="BlazorMapboxMap"/> (Mapbox GL JS).</summary>
+public sealed class BlazorMapboxMapOptions
 {
     public LatLng Center { get; set; } = new(51.505, -0.09);
 
@@ -11,8 +11,11 @@ public sealed class MapLibreMapDisplayOptions
 
     public int? MaxZoom { get; set; }
 
-    /// <summary>Map style URL (JSON). Default uses MapLibre public demo tiles; use your own style + tile endpoints for production.</summary>
-    public string StyleUrl { get; set; } = "https://demotiles.maplibre.org/style.json";
+    /// <summary>Mapbox access token (required for <c>mapbox://</c> styles and Mapbox-hosted tiles).</summary>
+    public string AccessToken { get; set; } = "";
+
+    /// <summary>Mapbox style URL, e.g. <c>mapbox://styles/mapbox/streets-v12</c> or an HTTPS style URL.</summary>
+    public string StyleUrl { get; set; } = "mapbox://styles/mapbox/streets-v12";
 
     public bool ShowNavigationControl { get; set; } = true;
 

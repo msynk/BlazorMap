@@ -2,7 +2,7 @@
 
 A **Blazor WebAssembly** map library with **provider-specific** Razor components (**Leaflet**, **MapLibre GL JS**, **Mapbox GL JS**, and more). Each component imports a small ES module under `_content/BlazorMap/js/` that loads the vendor CSS/JS from a CDN the first time that provider initializes, so the host app does **not** need manual `<script>` / `<link>` tags for those libraries.
 
-All public types (map components, `LatLng`, `LatLngBounds`, `LeafletMapDisplayOptions`, `MapLibreMapDisplayOptions`, `MapboxMapDisplayOptions`, etc.) live in the single **`BlazorMap`** namespace so consuming apps only need one `@using` directive.
+All public types (map components, `LatLng`, `LatLngBounds`, `BlazorLeafletMapOptions`, `BlazorMapLibreMapOptions`, `BlazorMapboxMapOptions`, etc.) live in the single **`BlazorMap`** namespace so consuming apps only need one `@using` directive.
 
 ## Requirements
 
@@ -28,7 +28,7 @@ Add a project reference to `src/BlazorMap/BlazorMap.csproj` from your Blazor Web
 
 @code {
     private BlazorLeafletMap? _map;
-    private readonly LeafletMapDisplayOptions _options = new()
+    private readonly BlazorLeafletMapOptions _options = new()
     {
         Center = new LatLng(51.505, -0.09),
         Zoom = 13
@@ -49,13 +49,13 @@ Add a project reference to `src/BlazorMap/BlazorMap.csproj` from your Blazor Web
 }
 ```
 
-**MapLibre GL** (open source, no token for the default demo style) uses `BlazorMapLibreMap` and `MapLibreMapDisplayOptions`:
+**MapLibre GL** (open source, no token for the default demo style) uses `BlazorMapLibreMap` and `BlazorMapLibreMapOptions`:
 
 ```razor
 <BlazorMapLibreMap Options="@_libreOptions" Height="420px" />
 
 @code {
-    private readonly MapLibreMapDisplayOptions _libreOptions = new()
+    private readonly BlazorMapLibreMapOptions _libreOptions = new()
     {
         Center = new LatLng(51.505, -0.09),
         Zoom = 13
@@ -63,13 +63,13 @@ Add a project reference to `src/BlazorMap/BlazorMap.csproj` from your Blazor Web
 }
 ```
 
-**Mapbox GL** uses `BlazorMapboxMap` and `MapboxMapDisplayOptions` (requires a [Mapbox access token](https://docs.mapbox.com/help/getting-started/access-tokens/) for `mapbox://` styles):
+**Mapbox GL** uses `BlazorMapboxMap` and `BlazorMapboxMapOptions` (requires a [Mapbox access token](https://docs.mapbox.com/help/getting-started/access-tokens/) for `mapbox://` styles):
 
 ```razor
 <BlazorMapboxMap Options="@_mapboxOptions" Height="420px" />
 
 @code {
-    private readonly MapboxMapDisplayOptions _mapboxOptions = new()
+    private readonly BlazorMapboxMapOptions _mapboxOptions = new()
     {
         AccessToken = "YOUR_TOKEN",
         Center = new LatLng(51.505, -0.09),
@@ -105,7 +105,7 @@ The demo includes Leaflet pages (markers, vectors, GeoJSON, tiles, events, enter
 
 | Path | Role |
 |------|------|
-| `src/BlazorMap/` | Razor class library: `Components/<ComponentName>/` for each map, `Models/`, `wwwroot/js/` modules |
+| `src/BlazorMap/` | Razor class library: each map under `Components/<Name>/` (component + its options type, e.g. `BlazorLeafletMapOptions`, `BlazorMapLibreMapOptions`, `BlazorMapboxMapOptions`), shared DTOs in `Models/`, `wwwroot/js/` modules |
 | `src/BlazorMap.Demo/` | Sample Blazor WebAssembly host |
 
 ## License

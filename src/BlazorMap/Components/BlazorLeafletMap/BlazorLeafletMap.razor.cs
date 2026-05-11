@@ -4,7 +4,7 @@ public partial class BlazorLeafletMap
 {
     protected override string JsModulePath => "./_content/BlazorMap/js/blazorLeafletMap.js";
 
-    protected override object ToMapOptionsPayload(LeafletMapDisplayOptions o) =>
+    protected override object ToMapOptionsPayload(BlazorLeafletMapOptions o) =>
         new
         {
             center = new { lat = o.Center.Latitude, lng = o.Center.Longitude },
@@ -36,7 +36,7 @@ public partial class BlazorLeafletMap
             }
             : null;
 
-    protected override LeafletMapDisplayOptions CloneOptions(LeafletMapDisplayOptions o) =>
+    protected override BlazorLeafletMapOptions CloneOptions(BlazorLeafletMapOptions o) =>
         new()
         {
             Center = o.Center,
@@ -59,7 +59,7 @@ public partial class BlazorLeafletMap
             KeyboardNavigation = o.KeyboardNavigation,
         };
 
-    protected override bool OptionsEqual(LeafletMapDisplayOptions a, LeafletMapDisplayOptions b) =>
+    protected override bool OptionsEqual(BlazorLeafletMapOptions a, BlazorLeafletMapOptions b) =>
         a.Center.Equals(b.Center)
         && Math.Abs(a.Zoom - b.Zoom) < 1e-6
         && a.MinZoom == b.MinZoom

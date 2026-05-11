@@ -35,13 +35,13 @@
 @code {
     private BlazorMapboxMap? _map;
     private string _token = "";
-    private MapboxMapDisplayOptions _options = new();
+    private BlazorMapboxMapOptions _options = new();
     private string _viewSummary = "Pan or zoom to see view state.";
 
     protected override void OnInitialized()
     {
         _token = Configuration["Mapbox:AccessToken"] ?? "";
-        _options = new MapboxMapDisplayOptions
+        _options = new BlazorMapboxMapOptions
         {
             AccessToken = _token,
             Center = new LatLng(51.5074, -0.1278),

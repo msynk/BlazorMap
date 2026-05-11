@@ -4,7 +4,7 @@ public partial class BlazorMapLibreMap
 {
     protected override string JsModulePath => "./_content/BlazorMap/js/blazorMapLibreMap.js";
 
-    protected override object ToMapOptionsPayload(MapLibreMapDisplayOptions o) =>
+    protected override object ToMapOptionsPayload(BlazorMapLibreMapOptions o) =>
         new
         {
             center = new { lat = o.Center.Latitude, lng = o.Center.Longitude },
@@ -32,7 +32,7 @@ public partial class BlazorMapLibreMap
             }
             : null;
 
-    protected override MapLibreMapDisplayOptions CloneOptions(MapLibreMapDisplayOptions o) =>
+    protected override BlazorMapLibreMapOptions CloneOptions(BlazorMapLibreMapOptions o) =>
         new()
         {
             Center = o.Center,
@@ -51,7 +51,7 @@ public partial class BlazorMapLibreMap
             KeyboardNavigation = o.KeyboardNavigation,
         };
 
-    protected override bool OptionsEqual(MapLibreMapDisplayOptions a, MapLibreMapDisplayOptions b) =>
+    protected override bool OptionsEqual(BlazorMapLibreMapOptions a, BlazorMapLibreMapOptions b) =>
         a.Center.Equals(b.Center)
         && Math.Abs(a.Zoom - b.Zoom) < 1e-6
         && a.MinZoom == b.MinZoom

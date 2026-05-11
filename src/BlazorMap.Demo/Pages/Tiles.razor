@@ -6,7 +6,7 @@
 
 <section class="demo-panel">
     <p>
-        <code>LeafletMapDisplayOptions.TileUrl</code> accepts any Leaflet-compatible XYZ template
+        <code>BlazorLeafletMapOptions.TileUrl</code> accepts any Leaflet-compatible XYZ template
         (<code>{z}</code>, <code>{x}</code>, <code>{y}</code>, optional <code>{s}</code> for subdomains).
         Respect each provider’s terms and attribution.
     </p>
@@ -27,7 +27,7 @@
 @code {
     private string _provider = "osm";
 
-    private LeafletMapDisplayOptions _options = CreateOsm();
+    private BlazorLeafletMapOptions _options = CreateOsm();
 
     private string Active(string id) => _provider == id ? "is-active" : string.Empty;
 
@@ -36,7 +36,7 @@
         _provider = p;
         _options = p switch
         {
-            "carto" => new LeafletMapDisplayOptions
+            "carto" => new BlazorLeafletMapOptions
             {
                 Center = new LatLng(20, 0),
                 Zoom = 2,
@@ -44,7 +44,7 @@
                 TileAttribution =
                     "&copy; OSM &copy; <a href=\"https://carto.com/attributions\">CARTO</a>",
             },
-            "opentopo" => new LeafletMapDisplayOptions
+            "opentopo" => new BlazorLeafletMapOptions
             {
                 Center = new LatLng(46.5, 11.3),
                 Zoom = 10,
@@ -57,7 +57,7 @@
         };
     }
 
-    private static LeafletMapDisplayOptions CreateOsm() =>
+    private static BlazorLeafletMapOptions CreateOsm() =>
         new()
         {
             Center = new LatLng(51.505, -0.09),

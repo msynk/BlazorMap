@@ -4,7 +4,7 @@ public partial class BlazorMapboxMap
 {
     protected override string JsModulePath => "./_content/BlazorMap/js/blazorMapboxMap.js";
 
-    protected override object ToMapOptionsPayload(MapboxMapDisplayOptions o) =>
+    protected override object ToMapOptionsPayload(BlazorMapboxMapOptions o) =>
         new
         {
             center = new { lat = o.Center.Latitude, lng = o.Center.Longitude },
@@ -33,7 +33,7 @@ public partial class BlazorMapboxMap
             }
             : null;
 
-    protected override MapboxMapDisplayOptions CloneOptions(MapboxMapDisplayOptions o) =>
+    protected override BlazorMapboxMapOptions CloneOptions(BlazorMapboxMapOptions o) =>
         new()
         {
             Center = o.Center,
@@ -53,7 +53,7 @@ public partial class BlazorMapboxMap
             KeyboardNavigation = o.KeyboardNavigation,
         };
 
-    protected override bool OptionsEqual(MapboxMapDisplayOptions a, MapboxMapDisplayOptions b) =>
+    protected override bool OptionsEqual(BlazorMapboxMapOptions a, BlazorMapboxMapOptions b) =>
         a.Center.Equals(b.Center)
         && Math.Abs(a.Zoom - b.Zoom) < 1e-6
         && a.MinZoom == b.MinZoom
