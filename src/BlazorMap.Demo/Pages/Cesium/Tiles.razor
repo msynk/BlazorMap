@@ -1,0 +1,129 @@
+@page "/cesium/tiles"
+
+<PageTitle>BlazorMap — CesiumJS imagery</PageTitle>
+
+<h1>Imagery providers and tile overlays</h1>
+
+<section class="demo-panel">
+    <p>
+        <code>BlazorCesiumMapOptions.ImageryStyle</code> controls the base imagery layer.
+        <c>"osm"</c> works with no token; Bing styles require a
+        <a href="https://cesium.com/ion/" target="_blank" rel="noopener noreferrer">Cesium ion token</a>.
+    </p>
+    <div class="demo-actions" style="margin-bottom:0.75rem;">
+        @foreach (var s in _styles)
+        {
+            <button type="button"
+                    class="demo-tile-btn @(s.Key == _style ? "is-active" : "")"
+                    @onclick="() => SetStyle(s.Key)">@s.Value</button>
+        }
+    </div>
+    <div class="demo-map-wrap">
+        <BlazorCesiumMap @key="_style" Height="380px" Options="@_options" />
+    </div>
+    <p style="font-size:0.9rem;color:#8b949e;">
+        Bing styles require a Cesium ion token. Without one they fall back to OSM.
+    </p>
+</section>
+
+<section class="demo-panel">
+    <h2>XYZ tile overlay</h2>
+    <p>Layer any XYZ tile service on top of the base imagery via <code>AddTileOverlayAsync</code>.</p>
+    <div class="demo-map-wrap">
+        <BlazorCesiumMap @ref="_overlayMap" Height="320px" Options="@_overlayOpts" />
+    </div>
+    <div class="demo-actions">
+        <button type="button" @onclick="AddOverlayAsync">Add Carto overlay</button>
+        <button type="button" @onclick="RemoveOverlayAsync">Remove overlay</button>
+    </div>
+    <div class="demo-log">@_log</div>
+</section>
+
+<DemoCodeSample Title="Imagery and tile overlays (CesiumJS)" Code="@_snippet" />
+
+@code {
+    private string _style = "osm";
+    private string _log   = "Add or remove the overlay layer.";
+
+    private BlazorCesiumMap? _overlayMap;
+
+    private static readonly Dictionary<string, string> _styles = new()
+    {
+        ["osm"]         = "OpenStreetMap",
+        ["bing_aerial"] = "Bing Aerial",
+        ["bing_labels"] = "Bing Aerial+Labels",
+        ["none"]        = "None (dark globe)",
+    };
+
+    private BlazorCesiumMapOptions _options = new()
+    {
+        Center       = new BlazorMapLatLng(20, 0),
+        Altitude     = 15_000_000,
+        ImageryStyle = "osm",
+    };
+
+    private readonly BlazorCesiumMapOptions _overlayOpts = new()
+    {
+        Center   = new BlazorMapLatLng(48.8566, 2.3522),
+        Altitude = 1_200_000,
+    };
+
+    private const string _snippet =
+        """
+        // Switch base imagery by recreating the component with @key:
+        private BlazorCesiumMapOptions _options = new()
+        {
+            ImageryStyle = "bing_aerial",
+            IonAccessToken = "<your-cesium-ion-token>",
+        };
+
+        // Add a custom XYZ tile overlay:
+        await _map.AddTileOverlayAsync(new BlazorMapTileOverlayOptions
+        {
+            Id          = "carto",
+            UrlTemplate = "https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png",
+            Attribution = "&copy; OSM &copy; CARTO",
+            Opacity     = 0.7,
+        });
+        """;
+
+    private void SetStyle(string style)
+    {
+        _style = style;
+        _options = new BlazorCesiumMapOptions
+        {
+            Center       = new BlazorMapLatLng(20, 0),
+            Altitude     = 15_000_000,
+            ImageryStyle = style,
+        };
+    }
+
+    private async Task AddOverlayAsync()
+    {
+        if (_overlayMap is null) return;
+        try
+        {
+            await _overlayMap.AddTileOverlayAsync(new BlazorMapTileOverlayOptions
+            {
+                Id          = "carto",
+                UrlTemplate = "https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png",
+                Attribution = "&copy; OSM &copy; CARTO",
+                Opacity     = 0.6,
+            });
+            _log = "Carto overlay added.";
+        }
+        catch (Exception ex)
+        {
+            _log = "Overlay failed: " + ex.Message;
+        }
+        StateHasChanged();
+    }
+
+    private async Task RemoveOverlayAsync()
+    {
+        if (_overlayMap is null) return;
+        await _overlayMap.RemoveTileOverlayAsync("carto");
+        _log = "Overlay removed.";
+        StateHasChanged();
+    }
+}

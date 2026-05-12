@@ -10,6 +10,7 @@
         : path.StartsWith("/openlayers", StringComparison.Ordinal) ? "openlayers"
         : path.StartsWith("/arcgis", StringComparison.Ordinal) ? "arcgis"
         : path.StartsWith("/azuremaps", StringComparison.Ordinal) ? "azuremaps"
+        : path.StartsWith("/cesium", StringComparison.Ordinal) ? "cesium"
         : null;
 }
 
@@ -76,6 +77,16 @@
             <NavLink class="demo-subnav-link" href="/azuremaps/tiles">Styles</NavLink>
             <NavLink class="demo-subnav-link" href="/azuremaps/events">Events</NavLink>
             <NavLink class="demo-subnav-link" href="/azuremaps/enterprise">Enterprise</NavLink>
+        }
+        else if (group == "cesium")
+        {
+            <NavLink class="demo-subnav-link" href="/cesium" Match="NavLinkMatch.All">Overview</NavLink>
+            <NavLink class="demo-subnav-link" href="/cesium/markers">Markers</NavLink>
+            <NavLink class="demo-subnav-link" href="/cesium/vectors">Vectors</NavLink>
+            <NavLink class="demo-subnav-link" href="/cesium/geojson">GeoJSON</NavLink>
+            <NavLink class="demo-subnav-link" href="/cesium/tiles">Imagery</NavLink>
+            <NavLink class="demo-subnav-link" href="/cesium/events">Events</NavLink>
+            <NavLink class="demo-subnav-link" href="/cesium/enterprise">3D Options</NavLink>
         }
     </nav>
 }

@@ -1,0 +1,157 @@
+@page "/cesium/enterprise"
+
+<PageTitle>BlazorMap — CesiumJS 3D options</PageTitle>
+
+<h1>3D globe options and scene modes</h1>
+
+<section class="demo-panel">
+    <p>
+        CesiumJS supports three <strong>scene modes</strong> (3D globe, flat 2D projection,
+        Columbus tilt) and optional world terrain that drapes imagery over real elevation data.
+        This page demonstrates those options alongside programmatic camera control and
+        the interaction toggle pattern used by commercial component suites.
+    </p>
+    <ul>
+        <li>Switch scene mode — 3D globe, 2D map, Columbus view</li>
+        <li>Toggle Cesium World Terrain (requires ion token)</li>
+        <li>Marker hover-tooltips and <code>FitBoundsToMarkersAsync</code></li>
+        <li>Read viewport via <code>GetViewAsync</code></li>
+        <li>Double-click event via <code>OnMapDoubleClick</code></li>
+    </ul>
+</section>
+
+<section class="demo-panel">
+    <h2>Live sample</h2>
+
+    <div style="margin-bottom:0.75rem;">
+        <label for="ent-token" style="font-size:0.875rem;">Ion access token (for terrain):</label>
+        <input id="ent-token" type="text" placeholder="Paste your Cesium ion token…" @bind="_ionToken"
+               style="font-size:0.8rem;padding:3px 6px;border:1px solid #444;border-radius:3px;background:#161b22;color:#c9d1d9;width:320px;" />
+    </div>
+
+    <p>
+        <strong>Scene mode:</strong>&nbsp;
+        @foreach (var (key, label) in _sceneModes)
+        {
+            <label style="margin-right:1rem;">
+                <input type="radio" name="scenemode" value="@key"
+                       checked="@(_sceneMode == key)"
+                       @onchange="() => _sceneMode = key" />
+                @label
+            </label>
+        }
+    </p>
+    <p>
+        <label><input type="checkbox" @bind="_terrain" /> Terrain (ion token required)</label>
+        &nbsp;
+        <label><input type="checkbox" @bind="_shadows" /> Shadows</label>
+    </p>
+
+    <div class="demo-map-wrap">
+        <BlazorCesiumMap @key="@ViewerKey"
+                         @ref="_map"
+                         Height="400px"
+                         Options="@BuildOptions()"
+                         OnMapDoubleClick="HandleDblClick"
+                         OnViewChanged="HandleView" />
+    </div>
+    <div class="demo-actions">
+        <button type="button" @onclick="AddMarkersAsync">Add three pins + fit bounds</button>
+        <button type="button" @onclick="ReadViewAsync">Log viewport (GetViewAsync)</button>
+    </div>
+    <div class="demo-log">@_log</div>
+</section>
+
+<DemoCodeSample Title="CesiumJS 3D globe options" Code="@_snippet" />
+
+@code {
+    private BlazorCesiumMap? _map;
+    private string _log       = "Toggle scene mode or press the buttons.";
+    private string _ionToken  = string.Empty;
+    private string _sceneMode = "scene3d";
+    private bool   _terrain;
+    private bool   _shadows;
+
+    private string ViewerKey => $"{_sceneMode}_{_terrain}_{_shadows}";
+
+    private static readonly (string Key, string Label)[] _sceneModes =
+    [
+        ("scene3d",  "3D Globe"),
+        ("scene2d",  "2D Map"),
+        ("columbus", "Columbus View"),
+    ];
+
+    private const string _snippet =
+        """
+        var opts = new BlazorCesiumMapOptions
+        {
+            Center         = new BlazorMapLatLng(51.5074, -0.1278),
+            Altitude       = 500_000,
+            SceneMode      = "scene3d",   // "scene3d" | "scene2d" | "columbus"
+            TerrainEnabled = true,
+            IonAccessToken = "<your-cesium-ion-token>",
+            ShadowsEnabled = false,
+        };
+
+        await _map.FitBoundsToMarkersAsync(paddingPixels: 56);
+        var view = await _map.GetViewAsync();
+        """;
+
+    private BlazorCesiumMapOptions BuildOptions() => new()
+    {
+        Center         = new BlazorMapLatLng(51.5074, -0.1278),
+        Altitude       = 800_000,
+        SceneMode      = _sceneMode,
+        TerrainEnabled = _terrain,
+        ShadowsEnabled = _shadows,
+        IonAccessToken = string.IsNullOrWhiteSpace(_ionToken) ? null : _ionToken,
+    };
+
+    private Task HandleDblClick(BlazorMapLatLng p)
+    {
+        _log = $"Double-click at {p.Lat:F4}, {p.Lng:F4}";
+        return Task.CompletedTask;
+    }
+
+    private Task HandleView(BlazorMapViewState _) => Task.CompletedTask;
+
+    private async Task AddMarkersAsync()
+    {
+        if (_map is null) return;
+        await _map.ClearMarkersAsync();
+        await _map.AddMarkerAsync(new BlazorMapMarkerModel
+        {
+            Id          = "a",
+            Position    = new BlazorMapLatLng(51.52, -0.10),
+            TooltipHtml = "<b>West End</b>",
+            PopupHtml   = "Popup A",
+        });
+        await _map.AddMarkerAsync(new BlazorMapMarkerModel
+        {
+            Id          = "b",
+            Position    = new BlazorMapLatLng(51.50, -0.08),
+            TooltipHtml = "City",
+            PopupHtml   = "Popup B",
+        });
+        await _map.AddMarkerAsync(new BlazorMapMarkerModel
+        {
+            Id          = "c",
+            Position    = new BlazorMapLatLng(51.48, -0.06),
+            TooltipHtml = "South Bank",
+            PopupHtml   = "Popup C",
+        });
+        await _map.FitBoundsToMarkersAsync(56);
+        _log = "Three markers added; view fitted with FitBoundsToMarkersAsync.";
+        StateHasChanged();
+    }
+
+    private async Task ReadViewAsync()
+    {
+        if (_map is null) return;
+        var v = await _map.GetViewAsync();
+        _log =
+            $"GetViewAsync → zoom ~{v.Zoom:F2}, centre {v.Center.Lat:F4},{v.Center.Lng:F4} | " +
+            $"NE {v.Bounds.NorthEast.Lat:F3},{v.Bounds.NorthEast.Lng:F3}";
+        StateHasChanged();
+    }
+}

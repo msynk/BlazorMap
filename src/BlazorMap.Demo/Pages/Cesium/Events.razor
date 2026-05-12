@@ -1,0 +1,88 @@
+@page "/cesium/events"
+
+<PageTitle>BlazorMap — CesiumJS events</PageTitle>
+
+<h1>Globe events and layout</h1>
+
+<section class="demo-panel">
+    <p>
+        <code>OnMapClick</code> delivers the geographic point under the cursor projected onto the ellipsoid.
+        <code>OnViewChanged</code> fires after every camera move with centre, approximate zoom level, and
+        screen-corner bounds.
+        Call <code>InvalidateSizeAsync</code> after the container resizes so CesiumJS recomputes its layout.
+    </p>
+    <p>
+        <label style="display:inline-flex;align-items:center;gap:0.5rem;">
+            <input type="checkbox" @bind="_tall" />
+            Toggle tall viewer (then "Refresh layout")
+        </label>
+    </p>
+    <div class="demo-map-wrap">
+        <BlazorCesiumMap @ref="_map"
+                         Height="@MapHeight"
+                         Options="@_opts"
+                         OnMapClick="HandleMapClick"
+                         OnViewChanged="HandleViewChanged" />
+    </div>
+    <div class="demo-actions">
+        <button type="button" @onclick="FlyToTokyoAsync">Fly to Tokyo</button>
+        <button type="button" @onclick="InvalidateAsync">Refresh layout</button>
+    </div>
+    <div class="demo-log">@_log</div>
+</section>
+
+<DemoCodeSample Title="Events and layout (CesiumJS)" Code="@_snippet" />
+
+@code {
+    private BlazorCesiumMap? _map;
+    private bool   _tall;
+    private string _log = "Click the globe or rotate/zoom to see events.";
+
+    private string MapHeight => _tall ? "480px" : "300px";
+
+    private readonly BlazorCesiumMapOptions _opts = new()
+    {
+        Center   = new BlazorMapLatLng(35.6762, 139.6503),
+        Altitude = 1_200_000,
+    };
+
+    private const string _snippet =
+        """
+        <BlazorCesiumMap @ref="_map"
+                         OnMapClick="HandleMapClick"
+                         OnViewChanged="HandleViewChanged" />
+
+        private async Task ResizeAfterContainerChangeAsync()
+        {
+            await _map!.InvalidateSizeAsync();
+        }
+        """;
+
+    private Task HandleMapClick(BlazorMapLatLng p)
+    {
+        _log = $"Globe click → {p.Lat:F5}, {p.Lng:F5}";
+        return Task.CompletedTask;
+    }
+
+    private Task HandleViewChanged(BlazorMapViewState v)
+    {
+        _log =
+            $"View: zoom ~{v.Zoom:F1}, centre {v.Center.Lat:F3},{v.Center.Lng:F3} | " +
+            $"SW {v.Bounds.SouthWest.Lat:F2},{v.Bounds.SouthWest.Lng:F2} " +
+            $"NE {v.Bounds.NorthEast.Lat:F2},{v.Bounds.NorthEast.Lng:F2}";
+        return Task.CompletedTask;
+    }
+
+    private async Task FlyToTokyoAsync()
+    {
+        if (_map is null) return;
+        await _map.FlyToAsync(new BlazorMapLatLng(35.6762, 139.6503), 11);
+    }
+
+    private async Task InvalidateAsync()
+    {
+        if (_map is null) return;
+        await _map.InvalidateSizeAsync();
+        _log = "Called InvalidateSizeAsync.";
+    }
+}

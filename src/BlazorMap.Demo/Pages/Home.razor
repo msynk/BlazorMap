@@ -7,7 +7,7 @@
 <section class="demo-panel">
     <p>
         This solution ships a reusable <strong>BlazorMap</strong> Razor Class Library with provider-specific components
-        (<code>BlazorLeafletMap</code>, <code>BlazorMapLibreMap</code>, <code>BlazorMapboxMap</code>, <code>BlazorOpenLayersMap</code>, and <code>BlazorArcGisMap</code>), each loading its vendor scripts from a CDN on first use.
+        (<code>BlazorLeafletMap</code>, <code>BlazorMapLibreMap</code>, <code>BlazorMapboxMap</code>, <code>BlazorOpenLayersMap</code>, <code>BlazorArcGisMap</code>, <code>BlazorAzureMapsMap</code>, and <code>BlazorCesiumMap</code>), each loading its vendor scripts from a CDN on first use.
         Components and geographic DTOs share the single <code>BlazorMap</code> namespace, so consuming apps only need <code>@("@using BlazorMap")</code>.
         The typed .NET API covers markers, vector shapes, GeoJSON, custom tiles or styles, and map events where the underlying engine supports them.
     </p>
@@ -33,6 +33,21 @@
         <NavLink href="/openlayers">OpenLayers samples</NavLink>
         ·
         <NavLink href="/arcgis">ArcGIS samples</NavLink>
+        ·
+        <NavLink href="/cesium">CesiumJS samples</NavLink>
+    </p>
+</section>
+
+<section class="demo-panel">
+    <h2>CesiumJS</h2>
+    <p>
+        <code>BlazorCesiumMap</code> wraps the <a href="https://cesium.com/" target="_blank" rel="noopener noreferrer">CesiumJS</a>
+        open platform for 3D geospatial.
+        The full 3-D globe, OpenStreetMap tiles, vector entities, GeoJSON, and XYZ tile overlays all
+        work without an API key.
+        A free <a href="https://cesium.com/ion/" target="_blank" rel="noopener noreferrer">Cesium ion</a> token
+        unlocks Cesium World Terrain and Bing imagery.
+        See the <NavLink href="/cesium">CesiumJS demos</NavLink>.
     </p>
 </section>
 

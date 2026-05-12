@@ -1,0 +1,94 @@
+@page "/cesium"
+
+<PageTitle>BlazorMap — CesiumJS</PageTitle>
+
+<h1>CesiumJS</h1>
+
+<section class="demo-panel">
+    <p>
+        <code>BlazorCesiumMap</code> targets <a href="https://cesium.com/" target="_blank" rel="noopener noreferrer">CesiumJS</a> —
+        an open-source library for world-class 3D globes and maps.
+        The SDK is loaded from the official Cesium CDN on first use — no npm install required.
+    </p>
+    <p>
+        A free <strong>Cesium ion</strong> access token unlocks Cesium World Terrain and Bing imagery.
+        Obtain one at <a href="https://cesium.com/ion/" target="_blank" rel="noopener noreferrer">cesium.com/ion</a>.
+        Without a token the globe renders with OpenStreetMap tiles and a smooth ellipsoid terrain — fully functional
+        for most use cases.
+    </p>
+    <div class="demo-actions" style="margin-bottom:0.75rem;">
+        <label for="csm-token" style="font-size:0.875rem;">Ion access token (optional):</label>
+        <input id="csm-token" type="text" placeholder="Paste your Cesium ion token…" @bind="_ionToken"
+               style="font-size:0.8rem;padding:3px 6px;border:1px solid #444;border-radius:3px;background:#161b22;color:#c9d1d9;width:340px;" />
+    </div>
+    <div class="demo-map-wrap">
+        <BlazorCesiumMap @ref="_map"
+                         Height="360px"
+                         Options="@BuildOptions()"
+                         OnMapReady="OnMapReadyAsync"
+                         OnViewChanged="OnViewChanged" />
+    </div>
+    <p class="demo-muted">@_viewSummary</p>
+</section>
+
+<section class="demo-panel">
+    <h2>Try next</h2>
+    <ul>
+        <li><NavLink href="/cesium/markers">Markers and popups</NavLink></li>
+        <li><NavLink href="/cesium/vectors">Polylines, polygons, circles, rectangles</NavLink></li>
+        <li><NavLink href="/cesium/geojson">GeoJSON layer</NavLink></li>
+        <li><NavLink href="/cesium/tiles">Imagery providers and tile overlays</NavLink></li>
+        <li><NavLink href="/cesium/events">Events and layout</NavLink></li>
+        <li><NavLink href="/cesium/enterprise">3D globe options and scene modes</NavLink></li>
+    </ul>
+</section>
+
+<DemoCodeSample Title="Minimal CesiumJS component" Code="@_snippet" />
+
+@code {
+    private BlazorCesiumMap? _map;
+    private string _viewSummary = "Rotate or zoom the globe to see view state.";
+    private string _ionToken = string.Empty;
+
+    private BlazorCesiumMapOptions BuildOptions() => new()
+    {
+        Center   = new BlazorMapLatLng(20, 0),
+        Altitude = 15_000_000,
+        IonAccessToken = string.IsNullOrWhiteSpace(_ionToken) ? null : _ionToken,
+    };
+
+    private const string _snippet =
+        """
+        <BlazorCesiumMap Height="360px"
+                         Options="@_options"
+                         OnViewChanged="OnViewChanged" />
+
+        @code {
+            private readonly BlazorCesiumMapOptions _options = new()
+            {
+                Center   = new BlazorMapLatLng(20, 0),
+                Altitude = 15_000_000,
+                // IonAccessToken = "<your-cesium-ion-token>",
+            };
+        }
+        """;
+
+    private async Task OnMapReadyAsync()
+    {
+        if (_map is null) return;
+        await _map.AddMarkerAsync(new BlazorMapMarkerModel
+        {
+            Id       = "welcome",
+            Position = new BlazorMapLatLng(48.8566, 2.3522),
+            Title    = "Paris",
+            PopupHtml = "<strong>CesiumJS 3D Globe</strong><br/>Free token unlocks terrain &amp; Bing imagery.",
+        });
+    }
+
+    private Task OnViewChanged(BlazorMapViewState state)
+    {
+        _viewSummary = $"Center {state.Center.Latitude:F3}°, {state.Center.Longitude:F3}° · zoom ~{state.Zoom:F1}";
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+}

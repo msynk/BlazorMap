@@ -1,0 +1,26 @@
+.blazor-map-root {
+  position: relative;
+  min-height: 120px;
+}
+
+.blazor-map-canvas {
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+/* CesiumJS mounts its widget div and canvas inside the target element */
+.blazor-cesium-canvas {
+  overflow: hidden;
+}
+
+.blazor-cesium-canvas > .cesium-widget,
+.blazor-cesium-canvas > .cesium-viewer {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.blazor-cesium-canvas canvas {
+  width: 100% !important;
+  height: 100% !important;
+}

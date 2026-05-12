@@ -1,0 +1,134 @@
+@page "/cesium/markers"
+
+<PageTitle>BlazorMap — CesiumJS markers</PageTitle>
+
+<h1>Markers and popups</h1>
+
+<section class="demo-panel">
+    <p>
+        Markers are rendered as <strong>CesiumJS billboard entities</strong>.
+        Click a pin to open its popup inside the native Cesium InfoBox.
+        Dragging a draggable marker fires <code>OnMarkerDragEnd</code>.
+        Provide a custom <code>IconUrl</code> to replace the default push-pin.
+        Hover tooltips appear via <code>TooltipHtml</code>; set <code>TooltipPermanent</code>
+        to display a label above the pin at all times.
+    </p>
+    <div class="demo-map-wrap">
+        <BlazorCesiumMap @ref="_map"
+                         Height="380px"
+                         Options="@_opts"
+                         OnMapReady="SeedMarkersAsync"
+                         OnMarkerClick="HandleMarkerClick"
+                         OnMarkerDragEnd="HandleMarkerDragEnd" />
+    </div>
+    <div class="demo-actions">
+        <button type="button" @onclick="AddRandomAsync">Add marker</button>
+        <button type="button" @onclick="ClearAsync">Clear all</button>
+        <button type="button" @onclick="OpenParisAsync">Open Paris popup</button>
+    </div>
+    <div class="demo-log">@_log</div>
+</section>
+
+<DemoCodeSample Title="Markers (CesiumJS)" Code="@_snippet" />
+
+@code {
+    private BlazorCesiumMap? _map;
+    private string _log = "Click a pin or drag the London marker.";
+    private int _counter;
+
+    private readonly BlazorCesiumMapOptions _opts = new()
+    {
+        Center   = new BlazorMapLatLng(48.8566, 2.3522),
+        Altitude = 1_500_000,
+    };
+
+    private const string _snippet =
+        """
+        <BlazorCesiumMap @ref="_map"
+                         Height="380px"
+                         Options="@_opts"
+                         OnMapReady="SeedMarkersAsync"
+                         OnMarkerClick="HandleMarkerClick"
+                         OnMarkerDragEnd="HandleMarkerDragEnd" />
+        """;
+
+    private async Task SeedMarkersAsync()
+    {
+        if (_map is null || !_map.IsMapReady) return;
+        await _map.AddMarkerAsync(new BlazorMapMarkerModel
+        {
+            Id        = "paris",
+            Position  = new BlazorMapLatLng(48.8566, 2.3522),
+            PopupHtml = "<b>Paris</b><br/>CesiumJS billboard entity.",
+            Title     = "Paris",
+            TooltipHtml = "<b>Paris</b>",
+        });
+        await _map.AddMarkerAsync(new BlazorMapMarkerModel
+        {
+            Id        = "london",
+            Position  = new BlazorMapLatLng(51.5074, -0.1278),
+            PopupHtml = "<b>London</b><br/>Drag me around the globe.",
+            Draggable = true,
+            TooltipHtml = "London (draggable)",
+        });
+        await _map.AddMarkerAsync(new BlazorMapMarkerModel
+        {
+            Id               = "berlin",
+            Position         = new BlazorMapLatLng(52.5200, 13.4050),
+            PopupHtml        = "<b>Berlin</b><br/>Permanent label demo.",
+            Title            = "Berlin",
+            TooltipHtml      = "Berlin",
+            TooltipPermanent = true,
+        });
+        await _map.FitBoundsAsync(
+            new BlazorMapLatLngBounds(new BlazorMapLatLng(48.0, -1.5), new BlazorMapLatLng(53.0, 14.0)));
+    }
+
+    private async Task AddRandomAsync()
+    {
+        if (_map is null) return;
+        _counter++;
+        var id  = $"pin{_counter}";
+        var lat = 44.0 + Random.Shared.NextDouble() * 12.0;
+        var lng = -2.0 + Random.Shared.NextDouble() * 18.0;
+        await _map.AddMarkerAsync(new BlazorMapMarkerModel
+        {
+            Id        = id,
+            Position  = new BlazorMapLatLng(lat, lng),
+            PopupHtml = $"<code>{id}</code> — random marker",
+        });
+        Append($"Added {id} at {lat:F4}, {lng:F4}");
+    }
+
+    private async Task ClearAsync()
+    {
+        if (_map is null) return;
+        await _map.ClearMarkersAsync();
+        Append("Cleared all markers.");
+    }
+
+    private async Task OpenParisAsync()
+    {
+        if (_map is null) return;
+        await _map.OpenMarkerPopupAsync("paris");
+        Append("Opened Paris popup.");
+    }
+
+    private Task HandleMarkerClick(string id)
+    {
+        Append($"Marker click: {id}");
+        return Task.CompletedTask;
+    }
+
+    private Task HandleMarkerDragEnd((string Id, BlazorMapLatLng Position) e)
+    {
+        Append($"Drag end {e.Id} → {e.Position.Lat:F5}, {e.Position.Lng:F5}");
+        return Task.CompletedTask;
+    }
+
+    private void Append(string line)
+    {
+        _log = line + Environment.NewLine + _log;
+        StateHasChanged();
+    }
+}
