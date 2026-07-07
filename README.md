@@ -1,3 +1,7 @@
+**Note**: moved to bit BlazorUI (https://blazorui.bitplatform.dev)
+
+---
+
 # BlazorMap
 
 A **Blazor WebAssembly** map library with **provider-specific** Razor components for **Leaflet**, **MapLibre GL JS**, **Mapbox GL JS**, **OpenLayers**, **ArcGIS Maps SDK**, **Azure Maps**, and **CesiumJS** (3D globe). Each component imports a small ES module under `_content/BlazorMap/js/` that loads the vendor CSS/JS from a CDN the first time that provider initializes, so the host app does **not** need manual `<script>` / `<link>` tags for those libraries.
